@@ -368,7 +368,7 @@
       font-family: var(--font-main);
       font-size: clamp(17px, 1.31vw, 20px);
       font-weight: var(--font-weight-main);
-      line-height: 0.88;
+      line-height: 1.2;
       letter-spacing: var(--tracking-tight);
     }
 
@@ -478,6 +478,8 @@
         column-gap: clamp(54px, 14vw, 96px);
         row-gap: 8px;
         align-items: start;
+        grid-auto-flow: column;
+        padding-top: 145px;
       }
 
       .studio-nav a {
@@ -503,12 +505,10 @@
       .studio-copy {
         max-width: 100%;
         font-size: clamp(13px, 1.75vw, 16px);
-        line-height: 0.9;
+        line-height: 1.2;
       }
 
       .studio-meta {
-        display: grid;
-        grid-template-columns: minmax(120px, 1fr) max-content max-content 82px;
         width: 100%;
         column-gap: 14px;
         align-items: end;
@@ -622,7 +622,7 @@
       .studio-copy {
         max-width: 100%;
         font-size: clamp(12px, 3.45vw, 15px);
-        line-height: 0.9;
+        line-height: 1.2;
       }
 
       .studio-meta {
