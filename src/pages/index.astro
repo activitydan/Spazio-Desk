@@ -1,0 +1,612 @@
+---
+import SiteHead from '../components/SiteHead.astro'
+import SiteFoot from '../components/SiteFoot.astro'
+import SiteScrollbar from '../components/SiteScrollbar.astro'
+import SHero from '../components/SHero.astro'
+import SWork from '../components/SWork.astro'
+import ASeparator from '../components/ASeparator.astro'
+
+import '../styles/global.scss'
+
+const base = import.meta.env.BASE_URL
+---
+
+<html lang="en" class="is-scroll-blocked theme-contrasted">
+  <head>
+    <meta charset="utf-8" />
+
+    <title>AW 2025 Portfolio – Open Source Edition</title>
+
+    <meta
+      name="description"
+      content="Take a peek behind the scenes of a senior dev’s awarded portfolio. Clone it, learn from it, build your own. But don’t just steal it—the community will call you out, and you’ll doom yourself to eternal mediocrity." />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href="https://public.wodniack.dev/" />
+
+    <link
+      rel="icon"
+      type="image/png"
+      href={`${base}icons/favicon-48x48.png`}
+      sizes="48x48"
+    />
+    <link rel="icon" type="image/svg+xml" href={`${base}icons/favicon.svg`} />
+    <link rel="shortcut icon" href={`${base}icons/favicon.ico`} />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href={`${base}icons/apple-touch-icon.png`}
+    />
+    <meta name="apple-mobile-web-app-title" content="AW Portfolio" />
+
+    <meta name="theme-color" content="#160000" />
+    <meta name="msapplication-navbutton-color" content="#160000" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="#160000" />
+
+    <meta property="og:locale" content="en_GB" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Antoine Wodniack 2025 Portfolio – Open Source Edition" />
+    <meta property="og:description" content="Take a peek behind the scenes of a senior dev’s awarded portfolio. Clone it, learn from it, build your own. But don’t just steal it—the community will call you out, and you’ll doom yourself to eternal mediocrity." />
+    <meta property="og:url" content="https://public.wodniack.dev/" />
+    <meta property="og:site_name" content="Antoine Wodniack 2025 Portfolio – Open Source Edition" />
+    <meta property="og:image" content="https://public.wodniack.dev/images/aw-creative-developer.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="675" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://public.wodniack.dev/images/aw-creative-developer.png" />
+
+    <link
+      rel="preload"
+      href={`${base}fonts/PPEditorialNew-Regular.woff2`}
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href={`${base}fonts/PPEditorialNew-Ultralight.woff2`}
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href={`${base}fonts/PPFraktionMono-Regular.woff2`}
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href={`${base}fonts/PPFraktionMono-Bold.woff2`}
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href={`${base}fonts/Bigger-Display.woff2`}
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+
+    <link rel="stylesheet" href={`${base}fonts/editorial-new.css`} />
+    <link rel="stylesheet" href={`${base}fonts/fraktion-mono.css`} />
+    <link rel="stylesheet" href={`${base}fonts/bigger-display.css`} />
+  </head>
+
+  <body>
+    <div class="site-wrapper js-site-wrapper" style="opacity: 0;">
+      <SiteHead />
+
+      <SHero />
+
+      <ASeparator style="secondary" />
+
+      <SWork />
+
+
+      <SiteFoot />
+    </div><!-- .site-wrapper -->
+
+    <div
+      class="site-intro js-intro"
+      style="opacity: 1; position: fixed; top: 0; left: 0; z-index: 50; width: 100%; height: 100%;"
+    >
+      <div class="sb-logo js-logo">
+        <svg class="js-logo-svg" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill="currentColor" d="M577.800293,507.433289 C574.412048,498.392303 567.903687,494.303131 558.894226,493.950012 C553.899841,493.754242 548.878052,493.884857 544.078430,492.209473 C535.373169,489.170654 530.282959,482.502747 530.716736,473.324463 C531.451416,457.778717 519.952942,449.576141 507.640564,450.063507 C491.333466,450.708984 474.981110,450.180725 458.648499,450.236664 C455.109772,450.248779 451.635468,449.789093 448.297699,448.819305 C439.076263,446.140137 433.044098,438.842590 433.835754,429.124146 C435.056915,414.132874 423.228851,405.976501 410.457428,406.286469 C393.468048,406.698792 376.460602,406.452362 359.461639,406.357544 C345.222321,406.278107 336.817352,397.737976 336.766144,383.545471 C336.720520,370.913605 329.019165,363.101105 316.182312,363.007111 C299.183685,362.882599 282.183594,362.952637 265.184113,362.962463 C261.325806,362.964691 257.532532,362.626862 253.869873,361.316620 C245.455002,358.306274 240.662292,351.643066 240.656067,342.729553 C240.634918,312.397156 241.027130,282.057861 240.473114,251.735611 C240.241302,239.048141 250.780273,230.883789 260.727570,230.830505 C295.891968,230.642105 331.059570,230.577789 366.222565,230.873138 C378.124573,230.973099 386.764709,240.123077 386.205444,251.887314 C385.529633,266.104950 395.539124,274.704987 409.326294,274.649017 C426.492157,274.579376 443.658600,274.609192 460.824646,274.649567 C475.037781,274.683014 483.102631,282.770630 483.197083,296.980469 C483.283142,309.930115 490.944733,317.795258 503.973755,317.904480 C521.305420,318.049713 538.639099,317.981354 555.971863,317.951172 C560.545715,317.943207 564.950500,318.561493 568.996216,320.811584 C575.608337,324.489075 579.384644,329.818207 579.389404,337.700195 C579.399353,354.288300 586.976624,361.688660 603.633667,361.691254 C620.799805,361.693939 637.966492,361.607880 655.131897,361.717224 C667.439392,361.795593 676.830383,370.417053 676.154236,382.249359 C675.331421,396.649017 684.753113,405.499268 699.770447,405.585449 C716.769287,405.683014 733.769348,405.604950 750.768738,405.561951 C764.821838,405.526398 773.170410,413.747650 773.176514,427.863037 C773.201477,485.861267 773.200317,543.859497 773.184387,601.857727 C773.180664,615.632202 764.496765,624.255249 750.654785,624.280029 C733.488708,624.310791 716.322021,624.219727 699.156555,624.327820 C687.248230,624.402832 679.370422,629.729858 676.980896,639.188843 C676.459961,641.250854 676.233582,643.495178 676.413940,645.609192 C677.654053,660.145874 665.397766,668.365662 653.580933,668.247253 C636.583191,668.076843 619.582397,668.184937 602.582947,668.200989 C587.109802,668.215637 579.717651,675.561646 579.454773,691.131287 C579.245911,703.494446 571.426208,711.311890 559.005920,711.363098 C541.506775,711.435242 524.006958,711.362122 506.507568,711.394348 C491.298553,711.422302 483.381805,719.258911 483.269043,734.312561 C483.177582,746.519714 474.515503,755.197388 461.984985,755.283081 C444.319702,755.403931 426.652954,755.306335 408.986816,755.308960 C394.345795,755.311096 386.371094,763.225220 386.353363,777.756836 C386.337921,790.397888 378.334076,798.891724 364.940125,799.003845 C330.443756,799.292542 295.941315,799.293457 261.445526,798.964050 C249.257675,798.847656 240.246536,789.879761 240.469894,777.169922 C240.988129,747.679871 240.635712,718.174561 240.644089,688.675476 C240.647873,675.357361 248.931305,666.855286 262.332703,666.755676 C280.164551,666.623108 297.998047,666.733032 315.830780,666.695740 C323.065216,666.680603 329.186310,664.288635 333.518066,658.160767 C335.704620,655.067505 337.149292,651.741516 336.720612,647.902771 C335.152435,633.860779 344.094818,622.755676 361.992096,622.899658 C378.657166,623.033691 395.324219,622.952515 411.990295,622.915955 C426.041412,622.885071 433.570709,615.340759 433.651886,601.311157 C433.727386,588.258606 442.014160,579.767639 455.226929,579.651733 C473.225006,579.493896 491.225739,579.668762 509.224701,579.574341 C521.680786,579.509033 530.054321,571.435730 530.631165,559.203491 C531.401733,542.865479 538.797180,535.888367 555.463562,535.694153 C558.605713,535.657593 561.753601,536.007202 564.866638,534.928284 C576.109680,531.031677 580.977478,521.019897 577.800293,507.433289 z"/>
+        </svg>
+      </div><!-- .sb-logo -->
+
+      <div class="site-intro__border site-intro__border--top js-border-top">
+      </div>
+      <div class="site-intro__border site-intro__border--left js-border-left">
+      </div>
+      <div class="site-intro__border site-intro__border--right js-border-right">
+      </div>
+    </div><!-- .site-intro -->
+
+    <div class="site-mount js-mount"></div>
+    <div class="site-contrast-mask js-contrast-mask"></div>
+
+    <SiteScrollbar />
+  </body>
+
+  <script>
+    import Emitter from '../utils/Emitter'
+    import Ticker from '../utils/Ticker'
+
+    import Lenis from 'lenis'
+
+    import { gsap } from 'gsap'
+    import { ScrollTrigger } from 'gsap/ScrollTrigger'
+    gsap.registerPlugin(ScrollTrigger)
+
+    declare global {
+      interface Window {
+        safeWidth: number
+        safeHeight: number
+        maxScrollTop: number
+        scrollProgress: number
+        lenis: any
+      }
+    }
+
+    class Site {
+      timeouts: any = {
+        resizeThrottle: null,
+      }
+
+      windowWidth: number
+      windowHeight: number
+      clientWidth: number
+      clientHeight: number
+
+      isScrolling: boolean = false
+
+      lenis: any
+
+      /**
+       * Constructor
+       */
+      constructor() {
+        // OS class
+        let os = 'unknown'
+        if (navigator.userAgent.indexOf('Win') !== -1) {
+          os = 'windows'
+        } else if (navigator.userAgent.indexOf('Android') !== -1) {
+          os = 'android'
+        } else if (navigator.userAgent.indexOf('Mac') !== -1) {
+          os = 'mac'
+        } else if (navigator.userAgent.indexOf('Linux') !== -1) {
+          os = 'linux'
+        }
+        document.documentElement.classList.add(`is-${os}`)
+
+        // Browser class
+        let browser = 'unknown'
+        if (navigator.userAgent.indexOf('Firefox') !== -1) {
+          browser = 'firefox'
+        } else if (navigator.userAgent.indexOf('Chrome') !== -1) {
+          browser = 'chrome'
+        } else if (navigator.userAgent.indexOf('Safari') !== -1) {
+          browser = 'safari'
+        }
+        document.documentElement.classList.add(`is-${browser}`)
+
+        this.bindEvents()
+      }
+
+      /**
+       * Initialization
+       */
+      init() {
+        this.initLenis()
+
+        Ticker.init()
+
+        this.onResize()
+        Ticker.nextTick(this.intro, this)
+      }
+
+      /**
+       * Bind events
+       */
+      bindEvents() {
+        window.addEventListener('resize', this.resizeThrottle.bind(this))
+        window.addEventListener('scroll', this.onScroll.bind(this), {
+          passive: true,
+        })
+        window.addEventListener('mousemove', this.onMouseMove.bind(this), {
+          passive: true,
+        })
+
+        Emitter.on('updateViewport', this.onResize, this, true)
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              entry.target.dispatchEvent(
+                new CustomEvent('intersect', {
+                  detail: { isIntersecting: entry.isIntersecting },
+                })
+              )
+
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-in-view')
+                entry.target.classList.remove(
+                  'is-out-of-view',
+                  'is-out-of-view-top',
+                  'is-out-of-view-bottom'
+                )
+              } else {
+                entry.target.classList.remove('is-in-view')
+                entry.target.classList.add('is-out-of-view')
+
+                entry.target.classList.toggle(
+                  'is-out-of-view-top',
+                  entry.boundingClientRect.top < 0
+                )
+                entry.target.classList.toggle(
+                  'is-out-of-view-bottom',
+                  entry.boundingClientRect.top > 0
+                )
+              }
+            })
+          },
+          {
+            threshold: 0,
+          }
+        )
+
+        document.querySelectorAll('[data-intersect]').forEach((el) => {
+          observer.observe(el)
+        })
+
+        // Site loaded event
+        if (document.readyState === 'complete') {
+          this.siteLoaded()
+        } else {
+          window.addEventListener('load', this.siteLoaded, { once: true })
+        }
+
+        this.onScroll()
+      }
+
+      /**
+       * Init lenis
+       */
+      initLenis() {
+        const lenis = new Lenis()
+
+        lenis.on('scroll', ScrollTrigger.update)
+
+        gsap.ticker.add((time) => {
+          lenis.raf(time * 1000)
+        })
+
+        gsap.ticker.lagSmoothing(0)
+
+        window.lenis = lenis
+        this.lenis = lenis
+      }
+
+      /**
+       * Set loaded class
+       */
+      siteLoaded() {
+        document.documentElement.classList.add('is-loaded')
+
+        Emitter.emit('siteLoaded')
+      }
+
+      /**
+       * Resize throttle
+       */
+      resizeThrottle() {
+        clearTimeout(this.timeouts.resizeThrottle)
+
+        this.timeouts.resizeThrottle = setTimeout(() => {
+          Ticker.nextTick(this.onResize, this)
+        }, 200)
+      }
+
+      /**
+       * Resize handler
+       */
+      onResize() {
+        const newWidth = window.innerWidth
+        let widthChanged = false
+        if (this.windowWidth !== newWidth) {
+          if (this.windowWidth !== undefined) {
+            widthChanged = true
+          }
+
+          this.windowWidth = newWidth
+          this.clientWidth = document.body.clientWidth
+        }
+
+        const newHeight = window.innerHeight
+        let heightChanged = false
+        if (this.windowHeight !== newHeight) {
+          if (this.windowHeight !== undefined) {
+            heightChanged = true
+          }
+
+          this.windowHeight = newHeight
+          this.clientHeight = document.body.clientHeight
+        }
+
+        window.safeWidth = newWidth
+        window.safeHeight = newHeight
+
+        window.maxScrollTop = document.body.scrollHeight - window.safeHeight
+
+        this.setScrollProgress()
+
+        Emitter.emit('resize', widthChanged, heightChanged)
+      }
+
+      /**
+       * Scroll handler
+       */
+      onScroll() {
+        this.setScrollProgress()
+
+        Ticker.nextTick(() => {
+          Emitter.emit('scroll', window.scrollY)
+        })
+      }
+
+      /**
+       * Set scroll progress
+       */
+      setScrollProgress() {
+        window.scrollProgress = window.scrollY / window.maxScrollTop
+      }
+
+      /**
+       * Mouse move handler
+       */
+      onMouseMove(e) {
+        Emitter.emit('mousemove', e.clientX, e.clientY)
+      }
+
+      /**
+       * Intro
+       */
+      intro() {
+        // Selectors
+        const wrapper: HTMLElement = document.querySelector('.js-site-wrapper')
+        const intro: HTMLElement = document.querySelector('.js-intro')
+        const mount: HTMLElement = document.querySelector('.js-mount')
+        const logoSvg: HTMLElement = intro.querySelector('.js-logo-svg')
+        const borderTop: HTMLElement = intro.querySelector('.js-border-top')
+        const borderLeft: HTMLElement = intro.querySelector('.js-border-left')
+        const borderRight: HTMLElement = intro.querySelector('.js-border-right')
+
+        // Timeline
+        const tl = gsap.timeline()
+
+        tl.set(wrapper, {
+          opacity: '',
+        })
+
+        tl.set(intro, {
+          background: 'transparent',
+        })
+
+        tl.fromTo(
+          logoSvg,
+          {
+            scaleY: 0,
+            transformOrigin: '50% 100%',
+          },
+          {
+            scaleY: 1,
+            duration: 1.2,
+            ease: 'power4.inOut',
+          },
+          0
+        )
+
+        tl.fromTo(
+          logoSvg,
+          {
+            scaleY: 1,
+          },
+          {
+            scaleY: 0,
+            transformOrigin: '50% 0%',
+            duration: 0.8,
+            ease: 'power4.in',
+            immediateRender: false,
+          },
+          2.2
+        )
+
+        tl.from(
+          borderTop,
+          {
+            scaleY: 0,
+            duration: 3,
+            ease: 'power3.inOut',
+          },
+          1
+        )
+
+        tl.from(
+          [borderLeft, borderRight],
+          {
+            scaleX: 0,
+            duration: 3,
+            ease: 'power3.inOut',
+          },
+          1
+        )
+
+        tl.call(
+          () => {
+            document.dispatchEvent(new CustomEvent('intro'))
+          },
+          null,
+          '-=1.85'
+          // 0.5
+        )
+
+        tl.call(
+          () => {
+            mount.style.opacity = '1'
+            intro.remove()
+
+            document.documentElement.classList.remove('is-scroll-blocked')
+
+            Ticker.nextTick(() => {
+              Emitter.emit('updateViewport')
+            })
+          },
+          null,
+          5
+          // 0
+        )
+      }
+    }
+
+    const site = new Site()
+
+    // Site init on DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', site.init, { once: true })
+    } else {
+      site.init()
+    }
+  </script>
+
+  <style lang="scss">
+    body {
+      position: relative;
+
+      padding: 1rem;
+      min-height: 100vh;
+
+      @include mq(phone) {
+        padding: 0.5rem;
+      }
+    }
+
+    .site-contrast-mask {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 20;
+
+      width: 100%;
+      height: 100%;
+
+      background: map.get($theme-colors, 'default', 'primary');
+      mix-blend-mode: darken;
+      opacity: 0;
+
+      pointer-events: none;
+      will-change: opacity;
+    }
+
+    .site-intro {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 50;
+
+      width: 100%;
+      height: 100%;
+
+      background: color(primary);
+
+      .sb-logo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+
+        width: 12rem;
+        height: 12rem;
+
+        color: color(secondary);
+        transform: translate3d(-50%, -50%, 0);
+
+        @include mq(phone) {
+          width: 7rem;
+          height: 7rem;
+        }
+
+        svg {
+          width: 100%;
+          height: 100%;
+        }
+      }
+
+      &__border {
+        display: none;
+
+        --width: 1rem;
+
+        position: absolute;
+
+        background: color(secondary);
+
+        @include mq(phone) {
+          --width: 0.5rem;
+        }
+
+        &--top {
+          top: 0;
+          left: 0;
+
+          width: 100%;
+          height: var(--width);
+
+          transform-origin: 50% 0;
+        }
+
+        &--left,
+        &--right {
+          top: 0;
+          left: 0;
+
+          width: var(--width);
+          height: 100%;
+        }
+
+        &--left {
+          transform-origin: 0 50%;
+        }
+
+        &--right {
+          left: auto;
+          right: 0;
+
+          transform-origin: 100% 50%;
+        }
+      }
+    }
+
+    .site-wrapper {
+      position: relative;
+      z-index: 2;
+
+      background: color(primary);
+      clip-path: inset(0 -1rem);
+
+      @include mq(phone) {
+        clip-path: inset(0 -0.5rem);
+      }
+    }
+
+    .site-mount {
+      display: none;
+    }
+  </style>
+</html>
