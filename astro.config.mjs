@@ -7,8 +7,8 @@ const __dirname = dirname(__filename);
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://spaziodesk.github.io',
-  base: '/prova/',
+  site: 'https://activitydan.github.io',
+  base: '/Spazio-Desk/',
 
   scopedStyleStrategy: 'class',
 
