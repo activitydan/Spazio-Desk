@@ -14,7 +14,6 @@ import ASeparator from './ASeparator.astro'
 
     <h1 class="s__title">
       <span class="s__title__word js-word">Spazio</span>
-      <span class="s__title__asset" aria-hidden="true"></span>
       <span class="s__title__word js-word">Desk</span>
     </h1>
 
@@ -111,16 +110,14 @@ import ASeparator from './ASeparator.astro'
      * Fit title to container width via --x / --y scale vars
      */
     fitTitle() {
-      this.title.style.removeProperty('--x')
-      this.title.style.removeProperty('--y')
+      this.title.style.removeProperty('--fit')
 
       const available = this.el.clientWidth
       const natural = this.title.scrollWidth
 
       if (natural > available) {
         const s = available / natural
-        this.title.style.setProperty('--x', s)
-        this.title.style.setProperty('--y', s)
+        this.title.style.setProperty('--fit', s)
       }
     }
 
@@ -380,29 +377,17 @@ import ASeparator from './ASeparator.astro'
 
       margin: 0;
       padding: 1.5rem 0;
+      gap: 0.12em;
 
       cursor: default;
       flex-wrap: nowrap;
-      transform: scale(var(--x, 1), var(--y, 1));
-      transform-origin: 50% 50%;
 
-      font: 700 min(15vw, 18.5rem) / 0.8 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font: 700 calc(clamp(2.34rem, 13.6vw, 15.73rem) * var(--fit, 1)) / 0.8 'Helvetica Neue', Helvetica, Arial, sans-serif;
       text-transform: uppercase;
       letter-spacing: -4px;
 
-      @include mq(desktop-xs) {
-        font-size: 14vw;
-      }
-
       @include mq(tablet) {
         padding: 1rem;
-        justify-content: center;
-
-        font-size: calc(31vw - 1rem);
-      }
-
-      @include mq(phone) {
-        font-size: calc(31vw - 0.75rem);
       }
 
       &__word {
@@ -411,29 +396,8 @@ import ASeparator from './ASeparator.astro'
         display: block;
         height: 0.7975em;
 
-        @include mq(tablet) {
-          flex-grow: 0;
-          flex-shrink: 0;
-        }
-
         @include mq(phone) {
           height: 0.825em;
-        }
-      }
-
-      &__asset {
-        display: block;
-        width: 48px;
-        height: 48px;
-        flex-shrink: 0;
-        margin: 0 2rem;
-        color: color(secondary);
-
-        @include mq(tablet) {
-          // display: none;
-          margin: 0 0 0 auto;
-          width: 0.375em;
-          height: 0.375em;
         }
       }
 
