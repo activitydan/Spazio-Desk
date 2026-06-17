@@ -488,7 +488,7 @@ import ASeparator from './ASeparator.astro'
       }
 
       :global(.char) {
-        clip-path: inset(0 2px);
+        clip-path: inset(0 1px);
 
         color: transparent;
       }
@@ -526,6 +526,7 @@ import ASeparator from './ASeparator.astro'
           transform: translate3d(-50%, 0, 0);
 
           color: color(secondary);
+          letter-spacing: 0;
 
           content: attr(data-letter) attr(data-letter) attr(data-letter);
         }
@@ -539,6 +540,7 @@ import ASeparator from './ASeparator.astro'
 
           color: color(secondary);
           word-break: break-all;
+          letter-spacing: 0;
 
           content: attr(data-letter) attr(data-letter) attr(data-letter);
         }
