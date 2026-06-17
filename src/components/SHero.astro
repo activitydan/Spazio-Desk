@@ -396,16 +396,17 @@ import ASeparator from './ASeparator.astro'
     .s__title {
       @include flex(row, center, center);
 
-      margin: 0;
-      padding: 1.5rem 0;
+      margin: 5px 0 65px;
+      padding: 0;
 
       cursor: default;
       flex-wrap: nowrap;
       transform: scale(var(--x, 1), var(--y, 1));
       transform-origin: 50% 50%;
 
-      font: 700 min(15vw, 18.5rem) / 0.8 font-family(bigger);
+      font: 700 min(13vw, 18.5rem) / 1 var(--font-family-bigger);
       text-transform: uppercase;
+      letter-spacing: -15px;
 
       @include mq(desktop-xs) {
         font-size: 14vw;
