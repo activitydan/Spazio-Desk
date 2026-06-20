@@ -327,6 +327,10 @@ while (i < projects.length) {
       Emitter.on('contrastchange', this.setCtxStyle, this)
       Emitter.on('resize', this.onResize, this)
 
+      document.addEventListener('intro', () => {
+        ScrollTrigger.refresh()
+      }, { once: true })
+
       this.el.addEventListener('intersect', this.onIntersect.bind(this), {
         passive: true,
       })
