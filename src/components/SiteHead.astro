@@ -5,6 +5,7 @@ const menu = [
   {
     id: 'about',
     text: 'About',
+    href: '/about',
   },
   {
     id: 'work',
@@ -46,7 +47,7 @@ const menu = [
         {
           menu.map((item) => (
             <li class="sb__item js-menu-item">
-              <a href={'#' + item.id} class="js-menu-link">
+              <a href={item.href ?? '#' + item.id} class="js-menu-link">
                 <span class="sb__text">{item.text}</span>
               </a>
             </li>
@@ -83,6 +84,7 @@ const menu = [
     links: NodeListOf<HTMLElement>
 
     messages: string[]
+    messageIndex: number
     message: string
     messageLineBreak: boolean
     lastMessage: string
@@ -104,73 +106,11 @@ const menu = [
 
       // Properties
       this.messages = [
-        'Preparing for inevitable debugging',
-        'Compiling designer dreams…into developer nightmares',
-        'Please wait while I overthink this',
-        'Optimizing… but nothing’s perfect',
-        'Configuring the next minor inconvenience',
-        'Fetching assets… contemplating the futility of it all',
-        'Re-routing your expectations… expect delays',
-        'Trying to animate enthusiasm… it’s not going well',
-        'Stuck in an infinite loop',
-        'Loading… still pointless',
-        'Simulating progress… sort of',
-        'This will probably break soon',
-        'Simulating something useful',
-        'Progress bar full of lies',
-        'Finding meaning in the code',
-        'Calculating failure probabilities',
-        'Please wait… indefinitely',
-        'Loading… almost there!',
-        'Animating pixels with love',
-        'Integrating magic and code',
-        'Optimizing creativity… stand by',
-        'Design and code handshake',
-        'Fetching creativity… almost done!',
-        'Preparing awesomeness',
-        'Simulating brilliance… probably',
-        'Everything is under control',
-        'Loading coolness… almost ready',
-        'Calibrating designer dreams',
-        'Fusing design and animation',
-        'Running creativity protocols',
-        'Crafting magic… please wait',
-        'Making things pretty… hold on',
-        'Loading… this might take a bit',
-        'Animating pixels… somewhat precisely',
-        'Integrating code and reality',
-        'Halfway done… maybe',
-        'Optimizing… cautiously hopeful',
-        'Design meets code… fingers crossed',
-        'Fetching some interesting stuff',
-        'Preparing… slowly but surely',
-        'Aligning pixels… carefully',
-        'Calibrating… what exactly? Good question',
-        'Waiting… patience is key',
-        'Simulating… something, probably',
-        'Loading… feel free to blink',
-        'Running some clever algorithms',
-        'Almost there… give or take',
-        'Integrating… like a pro',
-        'Crafting… without breaking anything',
-        'Adjusting fonts… nearly invisible',
-        'Piecing it together… stay tuned',
-        'Loading… nothing to see yet',
-        'Running final checks… hopefully',
-        'Almost ready… trust me',
-        'Building… it’s getting there',
-        'Loading… but why rush?',
-        'Please wait… or don’t, whatever',
-        'Initializing… prepare for bugs',
-        'Optimizing… but who cares?',
-        'Deploying… probably not broken',
-        'Making things work… hopefully',
-        'Running… but not too fast',
-        'Testing patience… stay calm',
-        'Initializing… no promises',
-        'Loading… but who’s counting?',
-        'Loading… could be worse',
+        "Studio Collettivo Creativo",
+        "Ragusa, Sicily",
+        "Via ruggero settimo, 16",
       ]
+      this.messageIndex = 0
       this.message = ''
       this.messageLineBreak = false
       this.lastMessage = ''
@@ -228,6 +168,13 @@ const menu = [
      * Intro
      */
     intro() {
+      // On about page skip the slide-in animation — appear immediately
+      if (document.documentElement.classList.contains('page-about')) {
+        gsap.set(this.el, { opacity: 1 })
+        this.canWrite = true
+        return
+      }
+
       const logo = this.el.querySelector('.js-logo')
       const menuItems = this.el.querySelectorAll('.js-menu-item')
 
@@ -311,9 +258,14 @@ const menu = [
     moveToSection(e) {
       e.preventDefault()
 
-      const id = e.currentTarget.getAttribute('href')
+      const href = e.currentTarget.getAttribute('href')
 
-      window.lenis.scrollTo(id, {
+      if (!href.startsWith('#')) {
+        window.location.href = href
+        return
+      }
+
+      window.lenis.scrollTo(href, {
         duration: 1.5,
         easing: (t) =>
           t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * --t * t * t * t * t,
@@ -329,8 +281,8 @@ const menu = [
       }
 
       if (this.message === '') {
-        this.message = this.getRandomMessage()
-        this.writeDelay = 2000
+        this.message = this.getNextMessage()
+        this.writeDelay = 1500
       } else {
         if (this.message === this.lastMessage || this.messageLineBreak) {
           this.console.textContent += '\n'
@@ -371,18 +323,12 @@ const menu = [
     }
 
     /**
-     * Get random message
+     * Get next message (sequential loop)
      */
-    getRandomMessage() {
-      let message =
-        this.messages[Math.floor(Math.random() * this.messages.length)]
-
-      if (message === this.lastMessage) {
-        message = this.getRandomMessage()
-      }
-
+    getNextMessage() {
+      const message = this.messages[this.messageIndex]
+      this.messageIndex = (this.messageIndex + 1) % this.messages.length
       this.lastMessage = message
-
       return message
     }
   }
@@ -397,7 +343,6 @@ const menu = [
 
     width: 100%;
 
-    border-bottom: 1px solid color(secondary);
     opacity: 0;
 
     &__container {
@@ -405,6 +350,7 @@ const menu = [
 
       width: 100%;
       height: 6rem;
+      overflow: hidden;
 
       @include mq(phone) {
         height: 4rem;
@@ -417,8 +363,6 @@ const menu = [
       padding: 0.5rem;
       width: 7rem;
       height: 6rem;
-
-      border-right: 1px solid color(secondary);
 
       @include mq(tablet) {
         order: 1;
@@ -481,8 +425,6 @@ const menu = [
     }
 
     .sb-menu {
-      border-left: 1px solid color(secondary);
-
       @include mq(desktop-xs) {
         padding: 0 1rem;
       }
@@ -573,13 +515,12 @@ const menu = [
 
       position: relative;
 
-      width: 48px;
-      height: 96px;
+      width: 75px;
+      height: 100%;
 
       appearance: none;
       background: none;
       border: 0;
-      border-left: 1px solid color(secondary);
       border-radius: 0;
       cursor: pointer;
 
