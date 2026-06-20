@@ -1133,27 +1133,7 @@ while (i < projects.length) {
         will-change: transform;
 
         &:before {
-          position: absolute;
-          top: 0;
-          left: 0;
-          z-index: -1;
-
-          color: color(shadow);
-
-          opacity: min(calc( var(--state) * 2 ), 1);
-          transform: scale(
-              1.05, 1.02
-            )
-            translate3d(
-              calc(var(--head) * 0.1rem * var(--state) * var(--state)),
-              0,
-              0
-            );
-          transform-origin: calc(50% - var(--head) * 50%) -50%;
-
-          will-change: opacity, transform;
-
-          content: attr(data-letter);
+          display: none;
         }
       }
 
@@ -1194,6 +1174,7 @@ while (i < projects.length) {
     }
 
     .s__canvas {
+      display: none;
       position: absolute;
       top: 0;
       left: 0;
