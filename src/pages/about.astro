@@ -400,28 +400,8 @@ const base = import.meta.env.BASE_URL
       background: color(primary);
     }
 
-    // 10px breathing room at top of header
     :global(.site-head) {
       padding-top: 10px;
-      // On about page the sidebar is immediately visible (no slide-in)
-      opacity: 1;
-    }
-
-    // Remove clipping so button fill renders senza artefatti
-    :global(.site-head .site-head__container) {
-      overflow: visible;
-    }
-
-    // Extend button hover fill upward to cover the 10px padding area
-    :global(html.page-about .site-head .site-head__container .sb-contrast::before),
-    :global(html.page-about .site-head .site-head__container .sb-contrast .sb__icon::before) {
-      top: -10px;
-      height: calc(100% + 10px);
-    }
-
-    // Center icon within the extended fill area (shift up by half the extension)
-    :global(html.page-about .site-head .site-head__container .sb-contrast .sb__icon) {
-      transform: translateY(-5px);
     }
 
     .site-contrast-mask {

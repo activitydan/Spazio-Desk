@@ -168,13 +168,6 @@ const menu = [
      * Intro
      */
     intro() {
-      // On about page skip the slide-in animation — appear immediately
-      if (document.documentElement.classList.contains('page-about')) {
-        gsap.set(this.el, { opacity: 1 })
-        this.canWrite = true
-        return
-      }
-
       const logo = this.el.querySelector('.js-logo')
       const menuItems = this.el.querySelectorAll('.js-menu-item')
 
