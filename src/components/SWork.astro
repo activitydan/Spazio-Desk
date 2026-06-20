@@ -305,6 +305,19 @@ while (i < projects.length) {
       this.setTimeline()
 
       this.bindEvents()
+
+      // Start loading videos immediately regardless of scroll position
+      this.loadNextVideo()
+      this.loadIsStarted = true
+
+      // If section is already in view (fast scroll / refresh mid-page), kick off tick
+      const rect = this.el.getBoundingClientRect()
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        this.isPaused = false
+        Emitter.on('tick', this.tick, this)
+      }
+
+      ScrollTrigger.refresh()
     }
 
     /**
@@ -480,8 +493,10 @@ while (i < projects.length) {
         dLines += `M ${line.p1.x} ${line.p1.y} L ${line.p2.x} ${line.p2.y} `
       })
 
-      mask.pathLines.setAttribute('d', dLines)
-      mask.pathLines.style.clipPath = `path(evenodd, '${linesClip}')`
+      if (mask.pathLines) {
+        mask.pathLines.setAttribute('d', dLines)
+        mask.pathLines.style.clipPath = `path(evenodd, '${linesClip}')`
+      }
     }
 
     /**
