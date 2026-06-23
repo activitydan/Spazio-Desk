@@ -82,7 +82,7 @@ const { class: className } = Astro.props
       Emitter.on('mousemove', this.onMouseMove, this)
       Emitter.on('resize', this.onResize, this)
 
-      this.addEventListener('touchmove', this.onTouchMove.bind(this))
+      this.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: true })
 
       this.addEventListener('intersect', this.onIntersect.bind(this), {
         passive: true,
@@ -110,8 +110,6 @@ const { class: className } = Astro.props
      * Touch handler
      */
     onTouchMove(e) {
-      e.preventDefault()
-
       const touch = e.touches[0]
       this.updateMousePosition(touch.clientX, touch.clientY)
     }
