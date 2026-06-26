@@ -521,11 +521,11 @@ while (i < projects.length) {
         letter.width = bounding.width
         letter.height = bounding.height
         letter.top = bounding.top - this.bounding.top
-        letter.left = window.safeWidth / 2
+        letter.left = bounding.left
 
         letter.freq = 1
 
-        const multiplier = 0.75
+        const multiplier = window.safeWidth > 767 ? 0.75 : 0.5
 
         // Create ghost letters
         letter.total =
