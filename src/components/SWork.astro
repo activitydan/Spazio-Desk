@@ -1177,16 +1177,18 @@ while (i < projects.length) {
               calc(var(--progress) * (50vw + 100%) - 50%),
               calc(var(--y) * 50% - 50%),
               calc(var(--progress) * var(--progress) * -5rem)
-            );
+            )
+            scale(var(--size));
         }
 
         @include mq(phone) {
           transform: rotateY(calc(var(--progress) * -20deg))
             translate3d(
               calc(var(--progress) * (50vw + 100%) - 50%),
-              calc(var(--y) * 100% - 50%),
+              calc(var(--y) * 50% - 50%),
               calc(var(--progress) * var(--progress) * -5rem)
-            );
+            )
+            scale(var(--size));
         }
       }
     }
