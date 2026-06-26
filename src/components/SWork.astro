@@ -521,10 +521,10 @@ while (i < projects.length) {
         letter.width = bounding.width
         letter.height = bounding.height
         letter.top = bounding.top - this.bounding.top
-        letter.left = this.bounding.left
+        letter.left = bounding.left
 
         letter.freq = 1
-        letter.phaseOffset = (j / letters.length) * 0.15
+        letter.phaseOffset = (j / letters.length) * 0.5
 
         const multiplier = 0.75
 
