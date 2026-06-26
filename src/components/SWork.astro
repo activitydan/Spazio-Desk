@@ -509,35 +509,33 @@ while (i < projects.length) {
     setLetters() {
       const { letters, scene } = this
 
-      letters.forEach((letter, j) => {
+      // First pass: measure all letters
+      letters.forEach((letter) => {
         letter.ghosts.forEach((ghost) => {
           ghost.el.remove()
         })
         letter.ghosts = []
 
-        // Get letter position and size
         const bounding = letter.el.getBoundingClientRect()
-
         letter.width = bounding.width
         letter.height = bounding.height
         letter.top = bounding.top - this.bounding.top
         letter.left = bounding.left
+      })
 
+      // Normalise ghost count using the widest letter so all rows look equally dense
+      const refWidth = Math.max(...letters.map((l) => l.width))
+      const multiplier = 0.75
+      const baseTotal = Math.round((this.bounding.width / refWidth) * multiplier) + 2
+      const mobileTotal = window.safeWidth <= 767
+        ? Math.max(Math.ceil(this.bounding.width / (refWidth * 0.7)), baseTotal)
+        : baseTotal
+
+      // Second pass: create ghosts
+      letters.forEach((letter, j) => {
         letter.freq = 1
         letter.phaseOffset = (j / letters.length) * 0.15
-
-        const multiplier = 0.75
-
-        // Create ghost letters
-        letter.total =
-          Math.round((this.bounding.width / letter.width) * multiplier) + 2
-
-        if (window.safeWidth <= 767) {
-          letter.total = Math.max(
-            Math.ceil(this.bounding.width / (letter.width * 0.7)),
-            letter.total
-          )
-        }
+        letter.total = mobileTotal
 
         for (let i = 0; i < letter.total; i++) {
           const el = document.createElement('span')
