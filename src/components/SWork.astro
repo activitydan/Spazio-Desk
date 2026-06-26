@@ -525,7 +525,7 @@ while (i < projects.length) {
 
         letter.freq = 1
 
-        const multiplier = window.safeWidth > 767 ? 0.75 : 0.5
+        const multiplier = 0.75
 
         // Create ghost letters
         letter.total =
@@ -1093,6 +1093,10 @@ while (i < projects.length) {
       font: 700 min(18.75rem, 25lvh) / 1 font-family(bigger);
       text-align: center;
       text-transform: uppercase;
+
+      @include mq(phone) {
+        font-size: min(18.75rem, 25lvh, 38vw);
+      }
     }
 
     .s__title__inner,
@@ -1133,6 +1137,7 @@ while (i < projects.length) {
       :global(.s__scene__letter) {
         --head: calc((var(--progress) - 0.5) * -2);
         --ahead: calc(var(--head) * var(--head));
+        --spread: 50vw;
 
         position: absolute;
         top: 0;
@@ -1142,13 +1147,17 @@ while (i < projects.length) {
 
         transform: rotateY(calc(var(--head) * -10deg * var(--state)))
           translate3d(
-            calc(var(--head) * 50vw * var(--state)),
+            calc(var(--head) * var(--spread) * var(--state)),
             calc(var(--iy) * 50% * var(--ahead) * var(--state)),
             0
           );
 
         pointer-events: none;
         will-change: transform;
+
+        @include mq(phone) {
+          --spread: 75vw;
+        }
 
         &:before {
           display: none;
