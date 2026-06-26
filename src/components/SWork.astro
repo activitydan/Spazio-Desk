@@ -521,7 +521,9 @@ while (i < projects.length) {
         letter.width = bounding.width
         letter.height = bounding.height
         letter.top = bounding.top - this.bounding.top
-        letter.left = bounding.left
+        // Compute explicit center-aligned X so ghost spread is symmetric on all screen sizes.
+        // bounding.left can be off for wide letters (e.g. W) that overflow the 0.7em container.
+        letter.left = (window.safeWidth - bounding.width) / 2
 
         letter.freq = 1
 
