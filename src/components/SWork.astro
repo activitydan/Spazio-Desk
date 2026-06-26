@@ -524,6 +524,7 @@ while (i < projects.length) {
         letter.left = bounding.left
 
         letter.freq = 1
+        letter.phaseOffset = (j / letters.length) * 0.5
 
         const multiplier = 0.75
 
@@ -832,7 +833,8 @@ while (i < projects.length) {
         letter.ghosts.forEach((ghost, index) => {
           let progress =
             (((animationProgress % letterSpeed) / letterSpeed +
-              index / letter.total) %
+              index / letter.total +
+              letter.phaseOffset) %
               1) /
               0.7 -
             0.15
