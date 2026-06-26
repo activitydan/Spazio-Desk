@@ -509,27 +509,26 @@ while (i < projects.length) {
     setLetters() {
       const { letters, scene } = this
 
-      letters.forEach((letter) => {
+      letters.forEach((letter, j) => {
         letter.ghosts.forEach((ghost) => {
           ghost.el.remove()
         })
         letter.ghosts = []
 
+        // Get letter position and size
         const bounding = letter.el.getBoundingClientRect()
+
         letter.width = bounding.width
         letter.height = bounding.height
         letter.top = bounding.top - this.bounding.top
         letter.left = bounding.left
-      })
 
-      const refLeft = Math.min(...letters.map((l) => l.left))
-
-      letters.forEach((letter, j) => {
         letter.freq = 1
-        letter.phaseOffset = (j / letters.length) * 0.5
+        letter.phaseOffset = (j / letters.length) * 0.15
 
         const multiplier = 0.75
 
+        // Create ghost letters
         letter.total =
           Math.round((this.bounding.width / letter.width) * multiplier) + 2
 
@@ -552,7 +551,7 @@ while (i < projects.length) {
 
           const ghost = {
             el,
-            x: refLeft,
+            x: letter.left,
             y: letter.top,
             z: Math.random() * 100,
             i: i - letter.total * 0.5,
