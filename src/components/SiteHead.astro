@@ -423,6 +423,10 @@ const menu = menuItems ?? [
         margin-left: auto;
       }
 
+      @include mq(phone) {
+        margin-left: 0;
+      }
+
       .sb__list {
         @include flex(row, center, flex-start);
 
@@ -481,7 +485,7 @@ const menu = menuItems ?? [
         }
 
         @include mq(phone) {
-          padding: 1.375rem 0.6rem;
+          padding: 1.375rem 0.9rem;
           font-size: 11px;
           letter-spacing: 0.02em;
         }
