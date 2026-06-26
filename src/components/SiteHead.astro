@@ -52,12 +52,6 @@ const menu = menuItems ?? [
     </nav><!-- .sb-menu -->
 
 
-    <button class="sb-hamburger js-hamburger" type="button">
-      <span class="sb-hamburger__bar"></span>
-      <span class="sb-hamburger__bar"></span>
-      <span class="u-sr-only">Menu</span>
-    </button><!-- .sb-hamburger -->
-
     <button class="sb-contrast js-contrast" type="button">
       <span
         class="sb__icon"
@@ -70,19 +64,6 @@ const menu = menuItems ?? [
 
   </div><!-- .site-head__container -->
 
-  <nav class="sb-mobile-nav js-mobile-nav" aria-hidden="true">
-    <ul class="sb__list">
-      {
-        menu.map((item) => (
-          <li class="sb__item">
-            <a href={item.href ?? '#' + item.id} class="js-mobile-link">
-              {item.text}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </nav><!-- .sb-mobile-nav -->
 </header>
 
 <script>
@@ -154,24 +135,6 @@ const menu = menuItems ?? [
         this.toggleContrast.bind(this),
         { passive: true }
       )
-
-      const hamburger = this.el.querySelector('.js-hamburger')
-      if (hamburger) {
-        hamburger.addEventListener('click', () => {
-          const isOpen = this.el.classList.toggle('is-menu-open')
-          const mobileNav = this.el.querySelector('.js-mobile-nav')
-          if (mobileNav) mobileNav.setAttribute('aria-hidden', String(!isOpen))
-        }, { passive: true })
-      }
-
-      this.el.querySelectorAll('.js-mobile-link').forEach((link) => {
-        link.addEventListener('click', (e) => {
-          this.el.classList.remove('is-menu-open')
-          const mobileNav = this.el.querySelector('.js-mobile-nav')
-          if (mobileNav) mobileNav.setAttribute('aria-hidden', 'true')
-          this.moveToSection(e)
-        })
-      })
 
       this.links.forEach((link) => {
         link.addEventListener('click', this.moveToSection.bind(this))
@@ -456,7 +419,8 @@ const menu = menuItems ?? [
       }
 
       @include mq(tablet) {
-        display: none;
+        order: 3;
+        flex: 1;
       }
 
       .sb__list {
@@ -511,6 +475,17 @@ const menu = menuItems ?? [
           padding: 2rem 1rem;
         }
 
+        @include mq(tablet) {
+          padding: 1.5rem 1rem;
+          font-size: 12px;
+        }
+
+        @include mq(phone) {
+          padding: 1.375rem 0.6rem;
+          font-size: 11px;
+          letter-spacing: 0.02em;
+        }
+
         @keyframes blink-in {
           0%,
           30%,
@@ -533,108 +508,6 @@ const menu = menuItems ?? [
             animation: blink-in 0.3s ease(in-out-expo) forwards;
           }
         }
-      }
-    }
-
-    .sb-hamburger {
-      @include flex(column, center, center);
-
-      display: none;
-
-      position: relative;
-
-      width: 75px;
-      height: 100%;
-      gap: 5px;
-
-      appearance: none;
-      background: none;
-      border: 0;
-      border-radius: 0;
-      cursor: pointer;
-
-      @include mq(tablet) {
-        display: flex;
-        order: 4;
-      }
-
-      &__bar {
-        display: block;
-        width: 20px;
-        height: 1px;
-
-        background: color(secondary);
-
-        transition:
-          transform 0.4s ease(in-out-expo),
-          opacity 0.3s ease(in-out-expo);
-      }
-    }
-
-    .sb-mobile-nav {
-      display: none;
-
-      @include mq(tablet) {
-        display: block;
-
-        position: absolute;
-        top: 6rem;
-        left: 0;
-        z-index: 10;
-
-        width: 100%;
-
-        background: color(primary);
-        border-bottom: 1px solid color(secondary);
-
-        max-height: 0;
-        overflow: hidden;
-
-        transition: max-height 0.5s ease(in-out-expo);
-      }
-
-      @include mq(phone) {
-        top: 4rem;
-      }
-
-      .sb__list {
-        margin: 0;
-        padding: 0;
-
-        list-style: none;
-      }
-
-      .sb__item {
-        border-top: 1px solid color(secondary);
-      }
-
-      a {
-        display: block;
-        padding: 1.5rem 2rem;
-
-        color: color(secondary);
-        font: 400 14px / 1 font-family(fraktion);
-        letter-spacing: 0.05em;
-        text-decoration: none;
-        text-transform: uppercase;
-      }
-    }
-
-    &.is-menu-open {
-      .sb-hamburger {
-        &__bar {
-          &:nth-child(1) {
-            transform: translateY(3px) rotate(45deg);
-          }
-
-          &:nth-child(2) {
-            transform: translateY(-3px) rotate(-45deg);
-          }
-        }
-      }
-
-      .sb-mobile-nav {
-        max-height: 300px;
       }
     }
 
