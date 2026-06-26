@@ -525,11 +525,18 @@ while (i < projects.length) {
 
         letter.freq = 1
 
-        const multiplier = window.safeWidth > 767 ? 0.75 : 1.0
+        const multiplier = 0.75
 
         // Create ghost letters
         letter.total =
           Math.round((this.bounding.width / letter.width) * multiplier) + 2
+
+        if (window.safeWidth <= 767) {
+          letter.total = Math.max(
+            Math.ceil(this.bounding.width / (letter.width * 0.7)),
+            letter.total
+          )
+        }
 
         for (let i = 0; i < letter.total; i++) {
           const el = document.createElement('span')
