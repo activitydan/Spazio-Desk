@@ -458,6 +458,10 @@ const menu = menuItems ?? [
           opacity: 0;
 
           content: '';
+
+          @include mq(phone) {
+            display: none;
+          }
         }
       }
 
