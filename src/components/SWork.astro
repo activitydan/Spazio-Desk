@@ -419,11 +419,10 @@ while (i < projects.length) {
       mask.svg.style.height = mask.height + 'px'
 
       const elBounding = this.el.getBoundingClientRect()
-      const maskBounding = mask.el.getBoundingClientRect()
       const rulerBounding = this.ruler.getBoundingClientRect()
       const rulerWidth = rulerBounding.width
       const rulerHeight = rulerBounding.height
-      const offsetX = rulerBounding.left - maskBounding.left
+      const offsetX = rulerBounding.left - elBounding.left
       const offsetY = rulerBounding.top - elBounding.top
 
       // Shape
@@ -987,9 +986,7 @@ while (i < projects.length) {
       top: 0;
       left: 0;
 
-      // Extend to full viewport width regardless of body padding
-      width: 100vw;
-      margin-left: calc((100% - 100vw) / 2);
+      width: 100%;
       height: 100lvh;
 
       overflow: hidden;
