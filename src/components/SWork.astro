@@ -419,10 +419,11 @@ while (i < projects.length) {
       mask.svg.style.height = mask.height + 'px'
 
       const elBounding = this.el.getBoundingClientRect()
+      const maskBounding = mask.el.getBoundingClientRect()
       const rulerBounding = this.ruler.getBoundingClientRect()
       const rulerWidth = rulerBounding.width
       const rulerHeight = rulerBounding.height
-      const offsetX = rulerBounding.left - elBounding.left
+      const offsetX = rulerBounding.left - maskBounding.left
       const offsetY = rulerBounding.top - elBounding.top
 
       // Shape
@@ -986,11 +987,19 @@ while (i < projects.length) {
       top: 0;
       left: 0;
 
-      width: 100%;
+      // Extend beyond the body padding so the mask covers the full viewport
+      // and s__inner (position: fixed, width: 100vw) has no uncovered side strips.
+      width: calc(100% + 2rem);
+      margin-left: -1rem;
       height: 100lvh;
 
       overflow: hidden;
       pointer-events: none;
+
+      @include mq(phone) {
+        width: calc(100% + 1rem);
+        margin-left: -0.5rem;
+      }
     }
 
     .s__mask {
