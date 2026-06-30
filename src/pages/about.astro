@@ -40,7 +40,14 @@ const base = import.meta.env.BASE_URL
       <main class="s-about" data-intersect>
         <section class="editorial-stage">
 
-          <header class="name-block js-name"></header>
+          <header class="name-block">
+            <a
+              href="https://albertolauria.com"
+              target="_blank"
+              rel="noreferrer"
+              class="js-name name-link"
+            ></a>
+          </header>
 
           <div class="location-block">RAGUSA — SICILY</div>
 
@@ -581,6 +588,15 @@ const base = import.meta.env.BASE_URL
       grid-area: name;
       align-self: start;
       min-height: 1.08em;
+    }
+
+    .name-link {
+      text-decoration: none;
+      color: inherit;
+
+      &:hover {
+        text-shadow: 0 0 1px currentcolor;
+      }
     }
 
     .location-block {
