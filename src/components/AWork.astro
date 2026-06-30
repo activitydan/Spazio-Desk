@@ -7,7 +7,7 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
 
 <a-work class={cssClass}>
   <div class="a__inner">
-    <a href={site} target="_blank">
+    <div>
       <video
         data-src={src}
         class="a__video js-video"
@@ -28,7 +28,7 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
           #{key}
         </div><!-- .a__caption__key -->
       </div><!-- .a__caption -->
-    </a>
+    </div>
   </div><!-- .a__inner -->
 </a-work>
 
@@ -36,7 +36,6 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
   class AWork extends HTMLElement {
     static observedAttributes = ['progress']
 
-    link: HTMLAnchorElement
     video: HTMLVideoElement
 
     isPlaying: boolean
@@ -47,13 +46,9 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
     connectedCallback() {
       // Elements
       this.video = this.querySelector('.js-video')
-      this.link = this.querySelector('a')
 
       // Properties
       this.isPlaying = false
-
-      // Events
-      this.link.addEventListener('click', this.onClick.bind(this))
     }
 
     /**
@@ -95,15 +90,6 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
       this.classList.remove('is-inview')
     }
 
-    /**
-     * On click
-     */
-    onClick(event: MouseEvent) {
-      if (this.link.href.includes('#')) {
-        event.preventDefault()
-        return false
-      }
-    }
   }
 
   customElements.define('a-work', AWork)
@@ -130,10 +116,8 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
       padding: 0.25rem;
     }
 
-    a {
+    .a__inner > div {
       display: block;
-
-      text-decoration: none;
     }
 
     .a__inner {

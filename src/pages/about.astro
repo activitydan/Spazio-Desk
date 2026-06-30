@@ -1,5 +1,6 @@
 ---
 import SiteHead from '../components/SiteHead.astro'
+import SiteFoot from '../components/SiteFoot.astro'
 import '../styles/global.scss'
 
 const base = import.meta.env.BASE_URL
@@ -10,6 +11,18 @@ const base = import.meta.env.BASE_URL
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>About — Spazio Desk</title>
+    <meta name="description" content="Spazio Desk è uno studio collettivo creativo con base in Sicilia. Branding strategico, identità visiva, direzione creativa e progettazione di sistemi di comunicazione." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://spaziodesk.com/about" />
+    <meta property="og:locale" content="it_IT" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="About — Spazio Desk" />
+    <meta property="og:description" content="Spazio Desk è uno studio collettivo creativo con base in Sicilia. Branding strategico, identità visiva, direzione creativa e progettazione di sistemi di comunicazione." />
+    <meta property="og:url" content="https://spaziodesk.com/about" />
+    <meta property="og:site_name" content="Spazio Desk" />
+    <meta property="og:image" content="https://spaziodesk.com/images/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://spaziodesk.com/images/og-image.png" />
 
     <link rel="icon" type="image/png" href={`${base}icons/favicon-16x16.png`} sizes="16x16" />
     <link rel="icon" type="image/png" href={`${base}icons/favicon-32x32.png`} sizes="32x32" />
@@ -35,88 +48,30 @@ const base = import.meta.env.BASE_URL
 
   <body>
     <div class="site-wrapper js-site-wrapper" style="opacity: 0;">
-      <SiteHead />
+      <SiteHead menuItems={[
+        { id: 'desk', text: 'Desk', href: '/' },
+        { id: 'work', text: 'Work' },
+        { id: 'contact', text: 'Contact' },
+      ]} />
 
       <main class="s-about" data-intersect>
-        <section class="editorial-stage">
+        <div class="about-text">
+          <p>Spazio Desk è uno studio collettivo creativo con base in Sicilia, specializzato nella creazione di identità visiva, direzione creativa e progettazione di sistemi di comunicazione. Lo studio affianca aziende, piccole e medie imprese, startup e progetti indipendenti nella costruzione di identità capaci di esprimere con chiarezza il proprio valore, traducendo strategie e visioni in sistemi coerenti, riconoscibili e duraturi.</p>
+          <p>Ogni progetto nasce da un processo che integra l'analisi e la ricerca, con l'obiettivo di sviluppare soluzioni che non rispondano soltanto a esigenze funzionali, ma che contribuiscano a costruire una cultura di marca solida e distintiva.</p>
+          <p>L'approccio di Spazio Desk affronta ogni incarico con attenzione al contesto, alle persone e agli obiettivi dell'organizzazione. Più che produrre elementi di comunicazione, lo studio progetta strumenti capaci di dare ordine alla complessità e valore alle relazioni tra brand, persone e territorio.</p>
+        </div>
 
-          <header class="name-block">
-            <a
-              href="https://albertolauria.com"
-              target="_blank"
-              rel="noreferrer"
-              class="js-name name-link"
-            ></a>
-          </header>
-
-          <div class="location-block">RAGUSA — SICILY</div>
-
-          <aside class="about-block">
-            <p class="about-label">ABOUT</p>
-            <div class="about-copy">
-              <p>
-                Alberto Lauria è un Graphic Designer e Direttore Creativo classe
-                2006 che lavora tra identità visiva, cultura contemporanea e
-                progettazione creativa.
-              </p>
-              <p>
-                Il suo approccio nasce dall'osservazione del quotidiano,
-                trasformando riferimenti, contesti e linguaggi in sistemi visivi
-                capaci di generare connessioni e nuove prospettive.
-              </p>
-              <p>
-                Interessato all'intersezione tra design, musica, spazi e
-                comunità, sviluppa progetti che vanno oltre l'estetica,
-                utilizzando il design come strumento culturale e mezzo di dialogo.
-              </p>
-              <p>
-                Fondatore di Desk e Spazio Desk, piattaforme dedicate alla
-                creatività, alla collaborazione e alla costruzione di esperienze
-                che uniscono persone, idee e territorio.
-              </p>
-            </div>
-          </aside>
-
-          <div class="role-block">
-            GRAPHIC DESIGNER<br />
-            AND CREATIVE DIRECTOR
+        <div class="members-section">
+          <p class="members-title">Members of the Team</p>
+          <div class="members-list">
+            <a href="https://albertolauria.com" target="_blank" rel="noreferrer" class="members-name members-name--link">Alberto Lauria</a>
+            <p class="members-name">Dan</p>
+            <p class="members-name">Lorenzo Bernardini</p>
           </div>
-
-          <div class="video-block">
-            <div class="video-frame">
-              <video
-                class="portfolio-video"
-                autoplay
-                muted
-                loop
-                playsinline
-                preload="metadata"
-              >
-                <source src={`${base}portfolio-reel.mp4`} type="video/mp4" />
-              </video>
-            </div>
-          </div>
-
-          <a href="mailto:albertolauriawork@gmail.com" class="mail-block">
-            ALBERTOLAURIAWORK@GMAIL.COM
-          </a>
-
-          <a
-            href="https://instagram.com/2albbb"
-            target="_blank"
-            rel="noreferrer"
-            class="instagram-block"
-          >
-            @2ALBBB
-          </a>
-
-          <div class="copyright-block js-sound-toggle" title="Toggle ambient sound">©</div>
-
-          <audio id="ambient-audio" loop>
-            <source src={`${base}ambient.mp3`} type="audio/mpeg" />
-          </audio>
-        </section>
+        </div>
       </main>
+
+      <SiteFoot />
     </div><!-- .site-wrapper -->
 
     <div
@@ -137,6 +92,13 @@ const base = import.meta.env.BASE_URL
     <div class="site-mount js-mount"></div>
     <div class="site-contrast-mask js-contrast-mask"></div>
 
+    <div class="speed-selector js-speed-selector" role="group" aria-label="Velocità typewriter">
+      <span class="speed-selector__label">Vel.</span>
+      <button class="speed-opt is-active" data-ms="45" aria-pressed="true">×1</button>
+      <button class="speed-opt" data-ms="15" aria-pressed="false">×2</button>
+      <button class="speed-opt" data-ms="7" aria-pressed="false">×3</button>
+    </div>
+
   </body>
 
   <script>
@@ -156,6 +118,7 @@ const base = import.meta.env.BASE_URL
         maxScrollTop: number
         scrollProgress: number
         lenis: any
+        typewriterSpeed: number
       }
     }
 
@@ -231,55 +194,131 @@ const base = import.meta.env.BASE_URL
 
         this.onScroll()
 
-        // Sound toggle
-        const toggle = document.querySelector('.js-sound-toggle')
-        const audio = document.getElementById('ambient-audio') as HTMLAudioElement
-        let playing = false
-        toggle?.addEventListener('click', () => {
-          if (!playing) {
-            audio.play()
-            ;(toggle as HTMLElement).style.opacity = '1'
-            playing = true
-          } else {
-            audio.pause()
-            ;(toggle as HTMLElement).style.opacity = '0.3'
-            playing = false
-          }
-        })
-
-        // Reveal about section + typewriters after intro
+        // Typewriter effect — main text then members, sequential
         document.addEventListener('intro', () => {
-          gsap.to(document.querySelector('.s-about'), {
-            opacity: 1,
-            duration: 0.8,
-            ease: 'power2.out',
-            delay: 0.2,
-          })
-          const nameEl = document.querySelector('.js-name') as HTMLElement
-          if (!nameEl) return
-          const nameText = 'ALBERTO LAURIA'
-          let i = 0
-          nameEl.textContent = ''
-          const typing = setInterval(() => {
-            nameEl.textContent += nameText[i]
-            i++
-            if (i >= nameText.length) clearInterval(typing)
-          }, 80)
+          const sAbout = document.querySelector('.s-about') as HTMLElement
+          sAbout.style.opacity = '1'
 
-          // About copy typewriter
-          const paragraphs = document.querySelectorAll('.about-copy p')
-          paragraphs.forEach((el, index) => {
-            const text = (el as HTMLElement).textContent || ''
-            ;(el as HTMLElement).textContent = ''
-            setTimeout(() => {
-              let j = 0
-              const t = setInterval(() => {
-                ;(el as HTMLElement).textContent += text.charAt(j)
-                j++
-                if (j >= text.length) clearInterval(t)
-              }, 18)
-            }, index * 900)
+          const paragraphs = [...sAbout.querySelectorAll('.about-text p')] as HTMLElement[]
+          const texts = paragraphs.map(p => {
+            const t = p.textContent ?? ''
+            p.textContent = ''
+            return t
           })
+
+          const memberEls = [...sAbout.querySelectorAll('.members-title, .members-name')] as HTMLElement[]
+          const memberTexts = memberEls.map(el => {
+            const t = el.textContent ?? ''
+            el.textContent = ''
+            return t
+          })
+
+          window.typewriterSpeed = 45
+          const MEMBERS_CHAR_MS = 50
+          const PARA_PAUSE_MS = 400
+          let paraIndex = 0
+
+          let userInteracted = false
+          ;['wheel', 'touchstart', 'mousedown', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, () => { userInteracted = true }, { once: true, passive: true })
+          })
+
+          // Speed selector
+          const speedSelector = document.querySelector('.js-speed-selector') as HTMLElement
+          const speedOpts = [...document.querySelectorAll('.speed-opt')] as HTMLElement[]
+
+          gsap.fromTo(speedSelector,
+            { opacity: 0, x: 18 },
+            { opacity: 1, x: 0, duration: 0.55, ease: 'power2.out', delay: 0.4 }
+          )
+
+          function setSpeed(ms: number) {
+            window.typewriterSpeed = ms
+            speedOpts.forEach(b => {
+              const active = parseInt((b as HTMLElement).dataset.ms ?? '45', 10) === ms
+              b.classList.toggle('is-active', active)
+              b.setAttribute('aria-pressed', active ? 'true' : 'false')
+            })
+          }
+
+          speedOpts.forEach(btn => {
+            btn.addEventListener('click', () => {
+              setSpeed(parseInt((btn as HTMLElement).dataset.ms ?? '45', 10))
+            })
+          })
+
+          // click su area non interattiva → avanza di 1 step
+          const speedSteps = [45, 15, 7]
+          window.addEventListener('click', (e) => {
+            const t = e.target as HTMLElement
+            if (t.closest('button, a, .speed-selector, .site-head, .js-logo, .js-intro')) return
+            const idx = speedSteps.indexOf(window.typewriterSpeed)
+            const next = (idx === -1 ? 1 : idx + 1) % speedSteps.length
+            if (next !== idx) setSpeed(speedSteps[next])
+          })
+
+          function autoScroll(el: HTMLElement) {
+            if (userInteracted) return
+            const rect = el.getBoundingClientRect()
+            if (rect.bottom > window.innerHeight - 60) {
+              window.lenis?.scrollTo(
+                window.scrollY + rect.bottom - (window.innerHeight - 60),
+                { duration: 0.5, easing: (t: number) => t }
+              )
+            }
+          }
+
+          function typeMembers() {
+            let mIdx = 0
+            function typeNextMember() {
+              if (mIdx >= memberTexts.length) return
+              const text = memberTexts[mIdx]
+              const el = memberEls[mIdx]
+              let charIdx = 0
+              const tick = () => {
+                if (charIdx < text.length) {
+                  el.textContent += text[charIdx++]
+                  autoScroll(el)
+                  setTimeout(tick, MEMBERS_CHAR_MS)
+                } else {
+                  if (el.classList.contains('members-name')) {
+                    const arrow = document.createElement('span')
+                    arrow.className = 'members-arrow'
+                    arrow.setAttribute('aria-hidden', 'true')
+                    arrow.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7 7 10 10"/><path d="M17 7v10H7"/></svg>'
+                    el.appendChild(arrow)
+                  }
+                  mIdx++
+                  setTimeout(typeNextMember, PARA_PAUSE_MS)
+                }
+              }
+              tick()
+            }
+            typeNextMember()
+          }
+
+          function typeNextParagraph() {
+            if (paraIndex >= texts.length) {
+              setTimeout(typeMembers, 600)
+              return
+            }
+            const text = texts[paraIndex]
+            const p = paragraphs[paraIndex]
+            let charIdx = 0
+            const tick = () => {
+              if (charIdx < text.length) {
+                p.textContent += text[charIdx++]
+                autoScroll(p)
+                setTimeout(tick, window.typewriterSpeed)
+              } else {
+                paraIndex++
+                setTimeout(typeNextParagraph, PARA_PAUSE_MS)
+              }
+            }
+            tick()
+          }
+
+          setTimeout(typeNextParagraph, 400)
         }, { once: true })
       }
 
@@ -511,225 +550,157 @@ const base = import.meta.env.BASE_URL
     // ── About page ──────────────────────────────────────────────────────────────
 
     .s-about {
-      background: color(primary);
-      color: color(secondary);
-      opacity: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       min-height: calc(100svh - 6rem);
-      padding: 0.5rem;
+      padding: 22.5rem 2rem 4rem;
+      background: color(primary);
+      opacity: 0;
 
       @include mq(phone) {
-        padding: 0;
+        padding: 2rem 1.25rem;
         min-height: calc(100svh - 4rem);
       }
     }
 
-    .editorial-stage {
-      min-height: calc(100svh - 7rem);
-      display: grid;
-      grid-template-columns: 16vw minmax(300px, 28vw) 9vw minmax(280px, 22vw);
-      grid-template-rows: auto 1fr auto;
-      grid-template-areas:
-        "name video location about"
-        "role video . about"
-        "mail video insta copyright";
-      column-gap: clamp(24px, 3vw, 60px);
-      row-gap: clamp(18px, 2.5vh, 32px);
-      align-items: start;
-      padding: clamp(28px, 2vw, 40px) clamp(36px, 2.2vw, 48px) 28px;
-
-      @include mq(tablet) {
-        grid-template-columns: 14vw minmax(300px, 36vw) minmax(240px, 1fr);
-        grid-template-rows: auto auto 1fr auto;
-        grid-template-areas:
-          "name location about"
-          "role video about"
-          ". video about"
-          "mail insta copyright";
-      }
-
-      @include mq(phone) {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto;
-        grid-template-areas:
-          "name"
-          "location"
-          "video"
-          "role"
-          "about"
-          "mail"
-          "insta"
-          "copyright";
-        row-gap: 18px;
-        padding: 16px 14px 18px;
-        min-height: 100svh;
-      }
+    .members-section {
+      align-self: stretch;
+      width: 100%;
+      text-align: center;
+      margin-top: 8rem;
+      padding-bottom: 5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 45vh;
     }
 
-    .name-block,
-    .location-block,
-    .role-block,
-    .about-label,
-    .about-copy p,
-    .mail-block,
-    .instagram-block,
-    .copyright-block {
-      margin: 0;
-      font: 700 11px / 1.08 font-family(fraktion);
-      letter-spacing: -0.045em;
+    .members-title {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: clamp(4rem, 9vw, 9rem);
+      font-weight: 700;
+      line-height: 1.0;
+      letter-spacing: -0.04em;
       text-transform: uppercase;
       color: color(secondary);
-
-      @include mq(phone) {
-        font-size: 10px;
-      }
+      margin: 0;
     }
 
-    .name-block {
-      grid-area: name;
-      align-self: start;
-      min-height: 1.08em;
+    .members-list {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
     }
 
-    .name-link {
+    .members-name {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: clamp(1rem, 1.4vw, 1.5rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: color(secondary);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.6em;
+      cursor: default;
+    }
+
+    .members-arrow {
+      display: inline-block;
+      transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .members-name:hover .members-arrow {
+      transform: translate(5px, 5px);
+    }
+
+    .members-name--link {
       text-decoration: none;
       color: inherit;
-
-      &:hover {
-        text-shadow: 0 0 1px currentcolor;
-      }
-    }
-
-    .location-block {
-      grid-area: location;
-      align-self: start;
-      justify-self: center;
-      white-space: nowrap;
-
-      @include mq(tablet) {
-        justify-self: start;
-      }
-
-      @include mq(phone) {
-        justify-self: start;
-      }
-    }
-
-    .role-block {
-      grid-area: role;
-      align-self: start;
-      padding-top: 37vh;
-      max-width: 26ch;
-
-      @include mq(tablet) {
-        padding-top: 0;
-        align-self: start;
-      }
-
-      @include mq(phone) {
-        max-width: none;
-        align-self: start;
-        padding-top: 0;
-      }
-    }
-
-    .video-block {
-      grid-area: video;
-      align-self: start;
-      justify-self: center;
-      width: min(100%, 28vw);
-      padding-top: 20px;
-
-      @include mq(tablet) {
-        width: min(100%, 36vw);
-        padding-top: 10px;
-      }
-
-      @include mq(phone) {
-        width: min(100%, 68vw);
-        justify-self: center;
-        padding-top: 2px;
-      }
-    }
-
-    .video-frame {
-      aspect-ratio: 0.73;
-      overflow: hidden;
-      background: color(primary);
-    }
-
-    .portfolio-video {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
-    }
-
-    .about-block {
-      grid-area: about;
-      align-self: start;
-      justify-self: end;
-      width: min(100%, 22vw);
-
-      @include mq(tablet) {
-        width: min(100%, 280px);
-      }
-
-      @include mq(phone) {
-        width: min(100%, 33ch);
-        justify-self: start;
-      }
-    }
-
-    .about-copy {
-      display: grid;
-      gap: 16px;
-      margin-top: 24px;
-    }
-
-    .about-copy p {
-      line-height: 1.08;
-      min-height: 1.08em;
-    }
-
-    .mail-block {
-      grid-area: mail;
-      align-self: end;
-      max-width: 24ch;
-      text-decoration: none;
-      color: color(secondary);
-
-      &:hover {
-        text-shadow: 0 0 1px currentcolor;
-      }
-    }
-
-    .instagram-block {
-      grid-area: insta;
-      align-self: end;
-      justify-self: center;
-      text-decoration: none;
-      color: color(secondary);
-
-      &:hover {
-        text-shadow: 0 0 1px currentcolor;
-      }
-
-      @include mq(phone) {
-        justify-self: start;
-      }
-    }
-
-    .copyright-block {
-      grid-area: copyright;
-      align-self: end;
-      justify-self: end;
       cursor: pointer;
-      opacity: 0.3;
-      transition: opacity 0.25s ease;
+    }
 
-      &:hover {
-        opacity: 1;
+    // ── Speed selector ────────────────────────────────────────────────────────
+
+    .speed-selector {
+      position: fixed;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+
+      @include mq(phone) {
+        display: none;
+      }
+    }
+
+    .speed-selector__label {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 7px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: color(secondary);
+      margin-bottom: 0.6rem;
+    }
+
+    .speed-opt {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: color(secondary);
+      background: transparent;
+      border: none;
+      border-top: 1px solid color(secondary);
+      padding: 0.55rem 0.85rem;
+      cursor: pointer;
+      min-width: 2.8rem;
+      text-align: center;
+      transition: background 0.12s ease, color 0.12s ease;
+
+      &:last-child {
+        border-bottom: 1px solid color(secondary);
+      }
+
+      &.is-active {
+        background: color(secondary);
+        color: color(primary);
+      }
+
+      &:hover:not(.is-active) {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .about-text {
+      max-width: 720px;
+      width: 100%;
+      text-align: center;
+
+      p {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-size: clamp(1.05rem, 1.8vw, 1.6rem);
+        font-weight: 700;
+        line-height: 1.45;
+        letter-spacing: -0.04em;
+        text-transform: uppercase;
+        color: color(secondary);
+        margin: 0;
+
+        & + p {
+          margin-top: 2.5rem;
+        }
       }
     }
   </style>

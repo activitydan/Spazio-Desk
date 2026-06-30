@@ -1,131 +1,12 @@
 ---
 import AWork from './AWork.astro'
-import dummyVideo from '/src/assets/works/Dummy.mp4'
 
-const videos = await Astro.glob<{ default: any }>('/src/assets/works/*.mp4')
-
-// Yeah, this should probably be in a CMS or content file.
-// But it’s my site, and editing it in code is faster than setting up yet another headless something.
-// Sometimes "quick and dirty" wins. Don’t @ me.
-const info = {
-  Pen: {
-    title: 'CodePen',
-    site: 'https://codepen.io/wodniack',
-  },
-  Dummy1: {
-    title: 'Dummy Project 1',
-    site: 'https://wodniack.dev',
-  },
-  Dummy2: {
-    title: 'Dummy Project 2',
-    site: 'https://wodniack.dev',
-  },
-  Dummy3: {
-    title: 'Dummy Project 3',
-    site: 'https://wodniack.dev',
-  },
-  Dummy4: {
-    title: 'Dummy Project 4',
-    site: 'https://wodniack.dev',
-  },
-  Dummy5: {
-    title: 'Dummy Project 5',
-    site: 'https://wodniack.dev',
-  },
-  Dummy6: {
-    title: 'Dummy Project 6',
-    site: 'https://wodniack.dev',
-  },
-  Dummy7: {
-    title: 'Dummy Project 7',
-    site: 'https://wodniack.dev',
-  },
-  Dummy8: {
-    title: 'Dummy Project 8',
-    site: 'https://wodniack.dev',
-  },
-  Dummy9: {
-    title: 'Dummy Project 9',
-    site: 'https://wodniack.dev',
-  },
-  Dummy10: {
-    title: 'Dummy Project 10',
-    site: 'https://wodniack.dev',
-  }
-}
-
-let projects = []
-let pens = []
-
-// I removed the video loops to keep the repo lightweight.
-// But this is where I normally fetch and assign the videos for each project in the portfolio.
-videos.forEach((video, index) => {
-  const src = video.default
-
-  const key = src.split('-')[0].split('/').pop()
-  const project = info[key]
-  if (!project) return
-  const caption = project.title
-  const site = project.site
-
-  if (key === 'Pen') {
-    pens.push({
-      caption,
-      site,
-      src,
-    })
-  } else {
-    projects.push({
-      caption,
-      site,
-      src,
-    })
-  }
-})
-
-// Create dummy projects with 3 videos each
-for (let i = 1; i <= 14; i++) {
-  const key = `Dummy${i}`
-  const project = info[key]
-  if (!project) continue
-
-  for (let j = 0; j < 2; j++) {
-    projects.push({
-      caption: `${project.title} - Video ${j + 1}`,
-      site: project.site,
-      src: dummyVideo
-    })
-  }
-}
-
-function shuffle(array) {
-  let currentIndex = array.length
-
-  while (currentIndex != 0) {
-    let randomIndex = Math.floor(Math.random() * currentIndex)
-    currentIndex--
-    ;[array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ]
-  }
-}
-
-shuffle(projects)
-
-// Add pens in between projects regularly
-let works = []
-let chunkSize = Math.floor(projects.length / pens.length)
-let i = 0
-let j = 0
-while (i < projects.length) {
-  works.push(projects[i])
-  if (j < pens.length && (i + 1) % chunkSize === 0) {
-    works.push(pens[j])
-    j++
-  }
-  i++
-}
+const works = [
+  { caption: 'Terrazza',  site: '#', src: '/works/terrazza.mp4'  },
+  { caption: 'Frame 186', site: '#', src: '/works/frame_186.mp4' },
+  { caption: 'Frame 185', site: '#', src: '/works/frame_185.mp4' },
+  { caption: 'Frame 183', site: '#', src: '/works/frame_183.mp4' },
+]
 ---
 
 <section id="work" class="s-work" data-intersect>
@@ -160,6 +41,14 @@ while (i < projects.length) {
 
     <div class="s__mask-outer">
       <div class="s__mask js-mask">
+        <div class="s__video-bg js-video-bg">
+          <iframe
+            src="https://streamable.com/e/syjenc?autoplay=1&muted=1&loop=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            allowfullscreen
+          ></iframe>
+        </div>
         <svg class="s__mask__svg js-mask-svg">
           <path class="s__mask__path-inner js-mask-path-inner" d=""></path>
           <path class="s__mask__path-outer js-mask-path-outer" d=""></path>
@@ -183,6 +72,7 @@ while (i < projects.length) {
   class Section {
     el: HTMLElement
     container: HTMLElement
+    videoBg: HTMLElement | null
     ruler: HTMLElement
     scene: HTMLElement
     canvas: HTMLCanvasElement
@@ -194,12 +84,10 @@ while (i < projects.length) {
       width: number
       height: number
       maxScale: number
-      lines: any[]
       el: HTMLElement
       svg: HTMLElement
       pathOuter: HTMLElement
       pathInner: HTMLElement
-      pathLines: HTMLElement
     }
 
     bounding: {
@@ -241,16 +129,16 @@ while (i < projects.length) {
       this.videos = this.container.querySelectorAll('video')
 
       // Properties
+      this.videoBg = this.el.querySelector('.js-video-bg')
+
       this.mask = {
         width: 0,
         height: 0,
         maxScale: 1,
-        lines: [],
         el: this.el.querySelector('.js-mask'),
         svg: this.el.querySelector('.js-mask-svg'),
         pathOuter: this.el.querySelector('.js-mask-path-outer'),
         pathInner: this.el.querySelector('.js-mask-path-inner'),
-        pathLines: this.el.querySelector('.js-mask-path-lines'),
       }
 
       this.letters = []
@@ -386,7 +274,7 @@ while (i < projects.length) {
      * Set size
      */
     setSize() {
-      this.el.style.setProperty('--height', this.works.length * 25 + 'lvh')
+      this.el.style.setProperty('--height', this.works.length * 50 + 'lvh')
 
       const bounding = this.container.getBoundingClientRect()
 
@@ -419,10 +307,11 @@ while (i < projects.length) {
       mask.svg.style.height = mask.height + 'px'
 
       const elBounding = this.el.getBoundingClientRect()
+      const maskBounding = mask.el.getBoundingClientRect()
       const rulerBounding = this.ruler.getBoundingClientRect()
       const rulerWidth = rulerBounding.width
       const rulerHeight = rulerBounding.height
-      const offsetX = rulerBounding.left - elBounding.left
+      const offsetX = rulerBounding.left - maskBounding.left
       const offsetY = rulerBounding.top - elBounding.top
 
       // Shape
@@ -442,6 +331,10 @@ while (i < projects.length) {
 
       let dInner = `M ${corners.tl.x} ${corners.tl.y + size} A ${size} ${size} 0 0 1 ${corners.tr.x} ${corners.tr.y + size} L ${corners.br.x} ${corners.br.y - size} A ${size} ${size} 0 0 1 ${corners.bl.x} ${corners.bl.y - size} Z`
       const linesClip = `${dOuter} ${dInner}`
+
+      if (this.videoBg) {
+        this.videoBg.style.clipPath = `path(evenodd, '${linesClip}')`
+      }
 
       mask.pathOuter.setAttribute('d', `${dOuter} ${dInner}`)
 
@@ -465,42 +358,6 @@ while (i < projects.length) {
 
       mask.pathInner.setAttribute('d', `${dOuter} ${dInner}`)
 
-      // Lines
-      mask.lines = []
-
-      const vLines = window.safeWidth > 767 ? 12 : 8
-      const gapX = width / vLines
-      const gapY = height * 0.1
-      const hLines = Math.ceil(height / gapY)
-
-      for (let i = 1; i < vLines; i++) {
-        const x = gapX * i
-
-        mask.lines.push({
-          p1: { x, y: 0 },
-          p2: { x, y: height },
-        })
-      }
-
-      for (let i = 0; i < hLines; i++) {
-        const y = gapY * i
-
-        mask.lines.push({
-          p1: { x: 0, y },
-          p2: { x: width, y },
-        })
-      }
-
-      let dLines = ''
-
-      mask.lines.forEach((line) => {
-        dLines += `M ${line.p1.x} ${line.p1.y} L ${line.p2.x} ${line.p2.y} `
-      })
-
-      if (mask.pathLines) {
-        mask.pathLines.setAttribute('d', dLines)
-        mask.pathLines.style.clipPath = `path(evenodd, '${linesClip}')`
-      }
     }
 
     /**
@@ -646,7 +503,7 @@ while (i < projects.length) {
       tl.fromTo(
         container,
         {
-          clipPath: 'inset(0 1rem)',
+          clipPath: 'inset(0 0rem)',
         },
         {
           clipPath: 'inset(0 0rem)',
@@ -965,7 +822,7 @@ while (i < projects.length) {
 
     height: var(--height);
 
-    background: color(primary);
+    background: color(secondary);
 
     &:before {
       position: absolute;
@@ -986,11 +843,19 @@ while (i < projects.length) {
       top: 0;
       left: 0;
 
-      width: 100%;
+      // Extend beyond the body padding so the mask covers the full viewport
+      // and s__inner (position: fixed, width: 100vw) has no uncovered side strips.
+      width: calc(100% + 2rem);
+      margin-left: -1rem;
       height: 100lvh;
 
       overflow: hidden;
       pointer-events: none;
+
+      @include mq(phone) {
+        width: calc(100% + 1rem);
+        margin-left: -0.5rem;
+      }
     }
 
     .s__mask {
@@ -1014,14 +879,14 @@ while (i < projects.length) {
       }
 
       &__path-outer {
-        fill: color(primary);
+        fill: none;
         fill-rule: evenodd;
         stroke: color(secondary);
         stroke-width: 1px;
       }
 
       &__path-inner {
-        fill: color(primary);
+        fill: none;
         fill-rule: evenodd;
         stroke: color(secondary);
         stroke-width: 1px;
@@ -1031,11 +896,6 @@ while (i < projects.length) {
         will-change: transform;
       }
 
-      &__path-lines {
-        fill: none;
-        stroke: color(secondary);
-        stroke-width: 1px;
-      }
     }
 
     .s__outer {
@@ -1046,6 +906,33 @@ while (i < projects.length) {
       clip-path: inset(0 -1rem);
     }
 
+    .s__video-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+
+      width: 100%;
+      height: 100%;
+
+      overflow: hidden;
+      pointer-events: none;
+
+      iframe {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+
+        width: 100vw;
+        height: 56.25vw;
+        min-height: 100%;
+        min-width: 177.78vh;
+
+        transform: translate(-50%, -50%);
+        border: none;
+      }
+    }
+
     .s__inner {
       @include flex(column, center, center);
 
@@ -1054,7 +941,7 @@ while (i < projects.length) {
       left: 0;
 
       width: 100%;
-      height: 100%;
+      height: 100lvh;
 
       background: color(secondary);
       transform: translate3d(0, calc(var(--scroll-progress) * -15%), 0);
