@@ -1,0 +1,84 @@
+<div class="site-cursor js-site-cursor" aria-hidden="true">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 12h14"/>
+    <path d="m12 5 7 7-7 7"/>
+  </svg>
+</div>
+
+<script>
+  import Emitter from '../utils/Emitter'
+
+  class Cursor {
+    el: HTMLElement
+    tx: number
+    ty: number
+    x: number
+    y: number
+    isVisible: boolean
+
+    constructor() {
+      this.el = document.querySelector('.js-site-cursor')
+      this.tx = 0
+      this.ty = 0
+      this.x = 0
+      this.y = 0
+      this.isVisible = false
+
+      this.bindEvents()
+    }
+
+    bindEvents() {
+      window.addEventListener('mousemove', this.onMouseMove.bind(this), { passive: true })
+      Emitter.on('tick', this.tick, this)
+    }
+
+    onMouseMove(e: MouseEvent) {
+      this.tx = e.clientX
+      this.ty = e.clientY
+
+      if (!this.isVisible) {
+        this.isVisible = true
+        this.x = this.tx
+        this.y = this.ty
+        this.el.style.opacity = '1'
+      }
+    }
+
+    tick() {
+      this.x += (this.tx - this.x) * 0.15
+      this.y += (this.ty - this.y) * 0.15
+      this.el.style.transform = `translate(${this.x - 12}px, ${this.y - 12}px)`
+    }
+  }
+
+  new Cursor()
+</script>
+
+<style lang="scss">
+  :global(html) {
+    cursor: none;
+  }
+
+  :global(*, *::before, *::after) {
+    cursor: none !important;
+  }
+
+  .site-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+
+    color: color(secondary);
+    opacity: 0;
+
+    pointer-events: none;
+    will-change: transform, opacity;
+
+    svg {
+      display: block;
+      width: 24px;
+      height: 24px;
+    }
+  }
+</style>
