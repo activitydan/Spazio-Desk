@@ -375,24 +375,6 @@ const { class: className } = Astro.props
 
     overflow: hidden;
 
-    &:before {
-      position: absolute;
-      top: 0;
-      left: 0;
-
-      width: 0.5rem;
-      height: 0.5rem;
-
-      background: color(secondary);
-      border-radius: 50%;
-
-      transform: translate3d(calc(var(--x) - 50%), calc(var(--y) - 50%), 0);
-
-      will-change: transform;
-
-      content: '';
-    }
-
     svg {
       display: block;
 
