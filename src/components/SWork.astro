@@ -84,12 +84,10 @@ const works = [
       width: number
       height: number
       maxScale: number
-      lines: any[]
       el: HTMLElement
       svg: HTMLElement
       pathOuter: HTMLElement
       pathInner: HTMLElement
-      pathLines: HTMLElement
     }
 
     bounding: {
@@ -137,12 +135,10 @@ const works = [
         width: 0,
         height: 0,
         maxScale: 1,
-        lines: [],
         el: this.el.querySelector('.js-mask'),
         svg: this.el.querySelector('.js-mask-svg'),
         pathOuter: this.el.querySelector('.js-mask-path-outer'),
         pathInner: this.el.querySelector('.js-mask-path-inner'),
-        pathLines: this.el.querySelector('.js-mask-path-lines'),
       }
 
       this.letters = []
@@ -362,42 +358,6 @@ const works = [
 
       mask.pathInner.setAttribute('d', `${dOuter} ${dInner}`)
 
-      // Lines
-      mask.lines = []
-
-      const vLines = window.safeWidth > 767 ? 12 : 8
-      const gapX = width / vLines
-      const gapY = height * 0.1
-      const hLines = Math.ceil(height / gapY)
-
-      for (let i = 1; i < vLines; i++) {
-        const x = gapX * i
-
-        mask.lines.push({
-          p1: { x, y: 0 },
-          p2: { x, y: height },
-        })
-      }
-
-      for (let i = 0; i < hLines; i++) {
-        const y = gapY * i
-
-        mask.lines.push({
-          p1: { x: 0, y },
-          p2: { x: width, y },
-        })
-      }
-
-      let dLines = ''
-
-      mask.lines.forEach((line) => {
-        dLines += `M ${line.p1.x} ${line.p1.y} L ${line.p2.x} ${line.p2.y} `
-      })
-
-      if (mask.pathLines) {
-        mask.pathLines.setAttribute('d', dLines)
-        mask.pathLines.style.clipPath = `path(evenodd, '${linesClip}')`
-      }
     }
 
     /**
@@ -936,11 +896,6 @@ const works = [
         will-change: transform;
       }
 
-      &__path-lines {
-        fill: none;
-        stroke: color(secondary);
-        stroke-width: 1px;
-      }
     }
 
     .s__outer {
