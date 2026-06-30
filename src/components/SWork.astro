@@ -42,12 +42,13 @@ const works = [
     <div class="s__mask-outer">
       <div class="s__mask js-mask">
         <div class="s__video-bg js-video-bg">
-          <iframe
-            src="https://streamable.com/e/syjenc?autoplay=1&muted=1&loop=1"
-            frameborder="0"
-            allow="autoplay; fullscreen"
-            allowfullscreen
-          ></iframe>
+          <video
+            src="/works/visual-bg.mp4"
+            autoplay
+            muted
+            loop
+            playsinline
+          ></video>
         </div>
         <svg class="s__mask__svg js-mask-svg">
           <path class="s__mask__path-inner js-mask-path-inner" d=""></path>
@@ -918,7 +919,7 @@ const works = [
       overflow: hidden;
       pointer-events: none;
 
-      iframe {
+      video {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -929,7 +930,7 @@ const works = [
         min-width: 177.78vh;
 
         transform: translate(-50%, -50%);
-        border: none;
+        object-fit: cover;
       }
     }
 
