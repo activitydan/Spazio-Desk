@@ -30,6 +30,11 @@
     bindEvents() {
       window.addEventListener('mousemove', this.onMouseMove.bind(this), { passive: true })
       Emitter.on('tick', this.tick, this)
+
+      document.querySelectorAll('a-waves').forEach((waves) => {
+        waves.addEventListener('mouseenter', () => { this.el.style.opacity = '0' })
+        waves.addEventListener('mouseleave', () => { if (this.isVisible) this.el.style.opacity = '1' })
+      })
     }
 
     onMouseMove(e: MouseEvent) {
