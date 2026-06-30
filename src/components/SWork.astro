@@ -131,15 +131,6 @@ while (i < projects.length) {
 <section id="work" class="s-work" data-intersect>
   <div class="s__outer">
     <div class="s__inner js-container">
-      <div class="s__video-bg">
-        <iframe
-          src="https://streamable.com/e/syjenc?autoplay=1&muted=1&loop=1"
-          frameborder="0"
-          allow="autoplay; fullscreen"
-          allowfullscreen
-        ></iframe>
-      </div>
-
       <h2 class="s__title">
         <span class="s__title__inner js-title">
           <span class="s__title__letter js-letter">W</span>
@@ -169,6 +160,14 @@ while (i < projects.length) {
 
     <div class="s__mask-outer">
       <div class="s__mask js-mask">
+        <div class="s__video-bg js-video-bg">
+          <iframe
+            src="https://streamable.com/e/syjenc?autoplay=1&muted=1&loop=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            allowfullscreen
+          ></iframe>
+        </div>
         <svg class="s__mask__svg js-mask-svg">
           <path class="s__mask__path-inner js-mask-path-inner" d=""></path>
           <path class="s__mask__path-outer js-mask-path-outer" d=""></path>
@@ -192,6 +191,7 @@ while (i < projects.length) {
   class Section {
     el: HTMLElement
     container: HTMLElement
+    videoBg: HTMLElement | null
     ruler: HTMLElement
     scene: HTMLElement
     canvas: HTMLCanvasElement
@@ -250,6 +250,8 @@ while (i < projects.length) {
       this.videos = this.container.querySelectorAll('video')
 
       // Properties
+      this.videoBg = this.el.querySelector('.js-video-bg')
+
       this.mask = {
         width: 0,
         height: 0,
@@ -452,6 +454,10 @@ while (i < projects.length) {
 
       let dInner = `M ${corners.tl.x} ${corners.tl.y + size} A ${size} ${size} 0 0 1 ${corners.tr.x} ${corners.tr.y + size} L ${corners.br.x} ${corners.br.y - size} A ${size} ${size} 0 0 1 ${corners.bl.x} ${corners.bl.y - size} Z`
       const linesClip = `${dOuter} ${dInner}`
+
+      if (this.videoBg) {
+        this.videoBg.style.clipPath = `path(evenodd, '${linesClip}')`
+      }
 
       mask.pathOuter.setAttribute('d', `${dOuter} ${dInner}`)
 
@@ -1032,14 +1038,14 @@ while (i < projects.length) {
       }
 
       &__path-outer {
-        fill: color(primary);
+        fill: none;
         fill-rule: evenodd;
         stroke: color(secondary);
         stroke-width: 1px;
       }
 
       &__path-inner {
-        fill: color(primary);
+        fill: none;
         fill-rule: evenodd;
         stroke: color(secondary);
         stroke-width: 1px;
@@ -1101,7 +1107,7 @@ while (i < projects.length) {
       width: 100%;
       height: 100lvh;
 
-      background: transparent;
+      background: color(secondary);
       transform: translate3d(0, calc(var(--scroll-progress) * -15%), 0);
 
       color: color(primary);
