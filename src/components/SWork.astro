@@ -571,6 +571,10 @@ const works = [
         0.75
       )
 
+      // Hold before the exit animation kicks in, so it starts roughly
+      // one scroll gesture later instead of right after the entrance.
+      tl.to({}, { duration: 0.25 })
+
       tl.fromTo(
         this,
         {
