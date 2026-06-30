@@ -930,15 +930,10 @@ const works = [
       height: 100lvh;
 
       background: color(secondary);
-      transform: translate3d(0, calc(var(--scroll-progress) * -15%), 0);
 
       color: color(primary);
 
-      will-change: clip-path, transform;
-
-      @include mq(phone) {
-        transform: none;
-      }
+      will-change: clip-path;
     }
 
     .s__ruler {
