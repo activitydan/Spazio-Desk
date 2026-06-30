@@ -326,11 +326,14 @@ const works = [
         bl: { x: offsetX, y: offsetY + rulerHeight },
       }
 
-      let size = (corners.tr.x - corners.tl.x) / 2
+      const halfWidth = (corners.tr.x - corners.tl.x) / 2
+      const r = 36
 
-      mask.maxScale = window.safeWidth / size
+      mask.maxScale = window.safeWidth / halfWidth
 
-      let dInner = `M ${corners.tl.x} ${corners.tl.y + size} A ${size} ${size} 0 0 1 ${corners.tr.x} ${corners.tr.y + size} L ${corners.br.x} ${corners.br.y - size} A ${size} ${size} 0 0 1 ${corners.bl.x} ${corners.bl.y - size} Z`
+      const rect = (c, rad) => `M ${c.tl.x + rad} ${c.tl.y} L ${c.tr.x - rad} ${c.tr.y} A ${rad} ${rad} 0 0 1 ${c.tr.x} ${c.tr.y + rad} L ${c.br.x} ${c.br.y - rad} A ${rad} ${rad} 0 0 1 ${c.br.x - rad} ${c.br.y} L ${c.bl.x + rad} ${c.bl.y} A ${rad} ${rad} 0 0 1 ${c.bl.x} ${c.bl.y - rad} L ${c.tl.x} ${c.tl.y + rad} A ${rad} ${rad} 0 0 1 ${c.tl.x + rad} ${c.tl.y} Z`
+
+      let dInner = rect(corners, r)
       const linesClip = `${dOuter} ${dInner}`
 
       if (this.videoBg) {
@@ -353,9 +356,7 @@ const works = [
       corners.bl.x += thickness
       corners.bl.y -= thickness
 
-      size = (corners.tr.x - corners.tl.x) / 2
-
-      dInner = `M ${corners.tl.x} ${corners.tl.y + size} A ${size} ${size} 0 0 1 ${corners.tr.x} ${corners.tr.y + size} L ${corners.br.x} ${corners.br.y - size} A ${size} ${size} 0 0 1 ${corners.bl.x} ${corners.bl.y - size} Z`
+      dInner = rect(corners, r)
 
       mask.pathInner.setAttribute('d', `${dOuter} ${dInner}`)
 
