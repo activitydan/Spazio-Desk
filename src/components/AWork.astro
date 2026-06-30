@@ -103,17 +103,18 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
 
     display: block;
     margin: 0;
-    padding: 0;
+    padding: 0.5rem 0.5rem 0;
 
     background: color(secondary);
     content-visibility: hidden;
 
-    border-radius: 999px;
-    overflow: hidden;
-
     transform-style: preserve-3d;
 
     will-change: transform;
+
+    @include mq(phone) {
+      padding: 0.25rem;
+    }
 
     .a__inner > div {
       display: block;
@@ -128,19 +129,14 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
     .a__video {
       display: block;
 
-      width: 18vw;
-      height: 50vh;
-      object-fit: cover;
-      object-position: center center;
-
-      @include mq(tablet) {
-        width: 28vw;
-        height: 50vh;
-      }
+      width: auto;
+      max-width: 50vw;
+      height: auto;
+      max-height: 50vh;
 
       @include mq(phone) {
-        width: 42vw;
-        height: 55vh;
+        max-width: 80vw;
+        max-height: 80vh;
       }
     }
 
