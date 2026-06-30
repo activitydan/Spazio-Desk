@@ -582,7 +582,7 @@ const works = [
           ease: 'power4.inOut',
           immediateRender: false,
         },
-        '-=1'
+        '-=1.5'
       )
 
       tl.fromTo(
@@ -596,7 +596,7 @@ const works = [
           ease: 'power4.inOut',
           immediateRender: false,
         },
-        '-=1'
+        '-=1.5'
       )
 
       tl.fromTo(
@@ -610,7 +610,7 @@ const works = [
           ease: 'power3.inOut',
           immediateRender: false,
         },
-        '-=1'
+        '-=1.5'
       )
 
       tl.fromTo(
@@ -624,7 +624,7 @@ const works = [
           ease: 'power3.inOut',
           immediateRender: false,
         },
-        '-=1'
+        '-=1.5'
       )
 
       tl.fromTo(
@@ -637,7 +637,7 @@ const works = [
           duration: 1,
           ease: 'power4.inOut',
         },
-        '-=1'
+        '-=1.5'
       )
     }
 
@@ -930,10 +930,15 @@ const works = [
       height: 100lvh;
 
       background: color(secondary);
+      transform: translate3d(0, calc(var(--scroll-progress) * -15%), 0);
 
       color: color(primary);
 
-      will-change: clip-path;
+      will-change: clip-path, transform;
+
+      @include mq(phone) {
+        transform: none;
+      }
     }
 
     .s__ruler {
