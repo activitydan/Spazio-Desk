@@ -1,5 +1,6 @@
 ---
 import SiteHead from '../components/SiteHead.astro'
+import SiteFoot from '../components/SiteFoot.astro'
 import '../styles/global.scss'
 
 const base = import.meta.env.BASE_URL
@@ -69,6 +70,8 @@ const base = import.meta.env.BASE_URL
           </div>
         </div>
       </main>
+
+      <SiteFoot />
     </div><!-- .site-wrapper -->
 
     <div
