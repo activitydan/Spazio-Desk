@@ -24,7 +24,9 @@
       this.y = 0
       this.isVisible = false
 
-      this.bindEvents()
+      if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        this.bindEvents()
+      }
     }
 
     bindEvents() {
@@ -56,12 +58,14 @@
 </script>
 
 <style lang="scss">
-  :global(html) {
-    cursor: none;
-  }
+  @media (hover: hover) and (pointer: fine) {
+    :global(html) {
+      cursor: none;
+    }
 
-  :global(*, *::before, *::after) {
-    cursor: none !important;
+    :global(*, *::before, *::after) {
+      cursor: none !important;
+    }
   }
 
   .site-cursor {
