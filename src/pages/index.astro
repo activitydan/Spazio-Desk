@@ -388,6 +388,27 @@ const base = import.meta.env.BASE_URL
         const wrapper: HTMLElement = document.querySelector('.js-site-wrapper')
         const intro: HTMLElement = document.querySelector('.js-intro')
         const mount: HTMLElement = document.querySelector('.js-mount')
+
+        // Skip the splash animation when arriving with a target section in the URL
+        // (e.g. redirected here from the About page's Work link)
+        if (window.location.hash) {
+          wrapper.style.opacity = ''
+          intro.remove()
+          mount.style.opacity = '1'
+
+          document.documentElement.classList.remove('is-scroll-blocked')
+
+          document.dispatchEvent(new CustomEvent('intro'))
+
+          Ticker.nextTick(() => {
+            Emitter.emit('updateViewport')
+          })
+
+          window.lenis.scrollTo(window.location.hash, { immediate: true })
+
+          return
+        }
+
         const logoSvg: HTMLElement = intro.querySelector('.js-logo-svg')
         const borderTop: HTMLElement = intro.querySelector('.js-border-top')
         const borderLeft: HTMLElement = intro.querySelector('.js-border-left')
@@ -472,10 +493,6 @@ const base = import.meta.env.BASE_URL
             Ticker.nextTick(() => {
               Emitter.emit('updateViewport')
             })
-
-            if (window.location.hash) {
-              window.lenis.scrollTo(window.location.hash, { immediate: true })
-            }
           },
           null,
           5
