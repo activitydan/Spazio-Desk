@@ -401,11 +401,17 @@ const base = import.meta.env.BASE_URL
 
             document.dispatchEvent(new CustomEvent('intro'))
 
-            Ticker.nextTick(() => {
-              Emitter.emit('updateViewport')
-            })
+            // Recalculate viewport/scroll dimensions now (unblocked layout)
+            // before scrolling, otherwise Lenis targets a stale position.
+            Emitter.emit('updateViewport')
+            window.lenis.resize()
 
-            window.lenis.scrollTo(window.location.hash, { immediate: true })
+            Ticker.nextTick(() => {
+              window.lenis.scrollTo(window.location.hash, {
+                immediate: true,
+                force: true,
+              })
+            })
           }
 
           // Other sections only attach their 'intro' listener once 'siteLoaded'
