@@ -392,19 +392,30 @@ const base = import.meta.env.BASE_URL
         // Skip the splash animation when arriving with a target section in the URL
         // (e.g. redirected here from the About page's Work link)
         if (window.location.hash) {
-          wrapper.style.opacity = ''
-          intro.remove()
-          mount.style.opacity = '1'
+          const finishHashSkip = () => {
+            wrapper.style.opacity = ''
+            intro.remove()
+            mount.style.opacity = '1'
 
-          document.documentElement.classList.remove('is-scroll-blocked')
+            document.documentElement.classList.remove('is-scroll-blocked')
 
-          document.dispatchEvent(new CustomEvent('intro'))
+            document.dispatchEvent(new CustomEvent('intro'))
 
-          Ticker.nextTick(() => {
-            Emitter.emit('updateViewport')
-          })
+            Ticker.nextTick(() => {
+              Emitter.emit('updateViewport')
+            })
 
-          window.lenis.scrollTo(window.location.hash, { immediate: true })
+            window.lenis.scrollTo(window.location.hash, { immediate: true })
+          }
+
+          // Other sections only attach their 'intro' listener once 'siteLoaded'
+          // has fired, so wait for full page load before dispatching 'intro'
+          // here too, otherwise they'd miss it and stay hidden (opacity: 0).
+          if (document.readyState === 'complete') {
+            finishHashSkip()
+          } else {
+            window.addEventListener('load', finishHashSkip, { once: true })
+          }
 
           return
         }
