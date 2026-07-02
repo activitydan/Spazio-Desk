@@ -21,7 +21,7 @@ const binaries = strings.map((string) => {
       binaries.map((binary) => (
         <>
           <span class="a__code js-code">
-            {binary.split('').map((char) => (
+            {binary.split('').map((char: string) => (
               <span
                 class:list={[
                   'a__char',
