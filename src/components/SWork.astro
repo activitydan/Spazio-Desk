@@ -41,16 +41,19 @@ const works = [
       <div class="s__mask js-mask">
         <div class="s__video-bg js-video-bg">
           <video
+            class="js-bg-video"
             src="/works/visual-bg.mp4"
-            autoplay
             muted
             loop
             playsinline
           ></video>
         </div>
-        <svg class="s__mask__svg js-mask-svg">
-          <path class="s__mask__path-inner js-mask-path-inner" d=""></path>
-          <path class="s__mask__path-outer js-mask-path-outer" d=""></path>
+        <svg class="s__mask__svg js-mask-svg" width="0" height="0" aria-hidden="true">
+          <defs>
+            <mask id="work-video-mask" maskUnits="userSpaceOnUse">
+              <path class="js-mask-path-outer" d="" fill="#fff" fill-rule="evenodd"></path>
+            </mask>
+          </defs>
         </svg>
       </div><!-- .s__mask -->
     </div><!-- .s__mask-outer -->
@@ -72,6 +75,7 @@ const works = [
     el: HTMLElement
     container: HTMLElement
     videoBg: HTMLElement | null
+    bgVideo: HTMLVideoElement | null
     ruler: HTMLElement
     scene: HTMLElement
     title: HTMLElement
@@ -82,9 +86,7 @@ const works = [
       height: number
       maxScale: number
       el: HTMLElement
-      svg: HTMLElement
       pathOuter: HTMLElement
-      pathInner: HTMLElement
     }
 
     bounding: {
@@ -119,15 +121,14 @@ const works = [
 
       // Properties
       this.videoBg = this.el.querySelector('.js-video-bg')
+      this.bgVideo = this.el.querySelector('.js-bg-video')
 
       this.mask = {
         width: 0,
         height: 0,
         maxScale: 1,
         el: this.el.querySelector('.js-mask'),
-        svg: this.el.querySelector('.js-mask-svg'),
         pathOuter: this.el.querySelector('.js-mask-path-outer'),
-        pathInner: this.el.querySelector('.js-mask-path-inner'),
       }
 
       this.letters = []
@@ -217,8 +218,14 @@ const works = [
 
       if (this.isPaused) {
         Emitter.off('tick', this.tick, this)
+        // Stop decoding the looping background video while the section
+        // is off-screen: on Safari a constantly-decoding background video
+        // adds sustained CPU/GPU load for the whole session, even when
+        // nowhere near this section.
+        this.bgVideo?.pause()
       } else {
         Emitter.on('tick', this.tick, this)
+        this.bgVideo?.play()
       }
 
       if (!this.loadIsStarted) {
@@ -288,9 +295,6 @@ const works = [
       mask.width = width
       mask.height = height
 
-      mask.svg.style.width = mask.width + 'px'
-      mask.svg.style.height = mask.height + 'px'
-
       const elBounding = this.el.getBoundingClientRect()
       const maskBounding = mask.el.getBoundingClientRect()
       const rulerBounding = this.ruler.getBoundingClientRect()
@@ -317,33 +321,15 @@ const works = [
 
       const rect = (c, rad) => `M ${c.tl.x + rad} ${c.tl.y} L ${c.tr.x - rad} ${c.tr.y} A ${rad} ${rad} 0 0 1 ${c.tr.x} ${c.tr.y + rad} L ${c.br.x} ${c.br.y - rad} A ${rad} ${rad} 0 0 1 ${c.br.x - rad} ${c.br.y} L ${c.bl.x + rad} ${c.bl.y} A ${rad} ${rad} 0 0 1 ${c.bl.x} ${c.bl.y - rad} L ${c.tl.x} ${c.tl.y + rad} A ${rad} ${rad} 0 0 1 ${c.tl.x + rad} ${c.tl.y} Z`
 
-      let dInner = rect(corners, r)
-      const linesClip = `${dOuter} ${dInner}`
+      const dInner = rect(corners, r)
 
-      if (this.videoBg) {
-        this.videoBg.style.clipPath = `path(evenodd, '${linesClip}')`
-      }
-
+      // Applied as an SVG mask (via CSS mask-image, see .s__video-bg)
+      // rather than clip-path: path(...). WebKit/Safari rasterizes
+      // arbitrary clip-path shapes on the CPU on every frame the element
+      // (or an ancestor, here .s__mask which is scaled on scroll) is
+      // transformed, which is a major source of jank on older devices.
+      // SVG masks composite far more reliably on GPU.
       mask.pathOuter.setAttribute('d', `${dOuter} ${dInner}`)
-
-      // Mask inner
-      const thickness = window.safeWidth > 767 ? 16 : 8
-      corners.tl.x += thickness
-      corners.tl.y += thickness
-
-      corners.tr.x -= thickness
-      corners.tr.y += thickness
-
-      corners.br.x -= thickness
-      corners.br.y -= thickness
-
-      corners.bl.x += thickness
-      corners.bl.y -= thickness
-
-      dInner = rect(corners, r)
-
-      mask.pathInner.setAttribute('d', `${dOuter} ${dInner}`)
-
     }
 
     /**
@@ -728,32 +714,10 @@ const works = [
 
       will-change: scale, transform;
 
-      &__svg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-
-        // transform: translate3d(0, 0, 0);
-      }
-
       &__path-outer {
-        fill: none;
         fill-rule: evenodd;
         stroke: none;
       }
-
-      &__path-inner {
-        fill: none;
-        fill-rule: evenodd;
-        stroke: none;
-
-        transform: translate3d(0, calc(var(--scroll-progress) * 48px), 0);
-
-        will-change: transform;
-      }
-
     }
 
     .s__outer {
@@ -775,6 +739,11 @@ const works = [
 
       overflow: hidden;
       pointer-events: none;
+
+      -webkit-mask-image: url(#work-video-mask);
+      mask-image: url(#work-video-mask);
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
 
       video {
         position: absolute;
@@ -899,8 +868,12 @@ const works = [
             0
           );
 
+        // No will-change here on purpose: there can be dozens of these
+        // ghost letters at once, and forcing each one onto its own GPU
+        // compositor layer overloads low-end/integrated GPUs (notably on
+        // Safari/macOS). The parent .s__scene already has will-change and
+        // establishes the perspective context, so it absorbs the cost.
         pointer-events: none;
-        will-change: transform;
 
         @include mq(phone) {
           --spread: 75vw;
