@@ -196,6 +196,7 @@ const works = [
       Emitter.on('resize', this.onResize, this)
 
       document.addEventListener('intro', () => {
+        this.el.style.opacity = '1'
         ScrollTrigger.refresh()
       }, { once: true })
 
@@ -673,6 +674,7 @@ const works = [
     height: var(--height);
 
     background: color(secondary);
+    opacity: 0;
 
     .s__mask-outer {
       position: sticky;
