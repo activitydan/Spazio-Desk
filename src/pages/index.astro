@@ -15,6 +15,16 @@ const base = import.meta.env.BASE_URL
 <html lang="it" class="is-scroll-blocked theme-contrasted">
   <head>
     <meta charset="utf-8" />
+    <script is:inline>
+      try {
+        var sdTheme = localStorage.getItem('sd-theme')
+        if (sdTheme === 'default') {
+          document.documentElement.classList.remove('theme-contrasted')
+        } else if (sdTheme === 'contrasted') {
+          document.documentElement.classList.add('theme-contrasted')
+        }
+      } catch (e) {}
+    </script>
 
     <title>Spazio Desk — Studio Collettivo Creativo</title>
 

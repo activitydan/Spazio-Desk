@@ -225,12 +225,15 @@ const menu = menuItems ?? [
           document.documentElement.classList.add('theme-contrasted')
         }
 
-        Emitter.emit(
-          'contrastchange',
-          document.documentElement.classList.contains('theme-contrasted')
-            ? 'contrasted'
-            : 'default'
-        )
+        const theme = document.documentElement.classList.contains('theme-contrasted')
+          ? 'contrasted'
+          : 'default'
+
+        try {
+          localStorage.setItem('sd-theme', theme)
+        } catch (e) {}
+
+        Emitter.emit('contrastchange', theme)
       })
 
       tl.to(this.contrastMask, {

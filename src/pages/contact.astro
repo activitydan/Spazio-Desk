@@ -13,6 +13,16 @@ const base = import.meta.env.BASE_URL
 <html lang="it" class="is-scroll-blocked theme-contrasted page-contact">
   <head>
     <meta charset="utf-8" />
+    <script is:inline>
+      try {
+        var sdTheme = localStorage.getItem('sd-theme')
+        if (sdTheme === 'default') {
+          document.documentElement.classList.remove('theme-contrasted')
+        } else if (sdTheme === 'contrasted') {
+          document.documentElement.classList.add('theme-contrasted')
+        }
+      } catch (e) {}
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Contact — Spazio Desk</title>
     <meta name="description" content="Contatta Spazio Desk: email, telefono e Instagram." />
