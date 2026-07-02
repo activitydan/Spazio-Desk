@@ -35,8 +35,6 @@ const works = [
           ))
         }
       </div><!-- .s__scene -->
-
-      <canvas class="s__canvas js-canvas"></canvas>
     </div><!-- .s__inner -->
 
     <div class="s__mask-outer">
@@ -76,8 +74,6 @@ const works = [
     videoBg: HTMLElement | null
     ruler: HTMLElement
     scene: HTMLElement
-    canvas: HTMLCanvasElement
-    ctx: CanvasRenderingContext2D
     title: HTMLElement
     videos: NodeListOf<HTMLVideoElement>
 
@@ -99,15 +95,9 @@ const works = [
     }
     letters: any[]
     works: any[]
-    points: any[]
 
     tl: gsap.core.Timeline
     animationProgress: number
-    pointsProgress: number
-    last: {
-      animationProgress: number
-      pointsProgress: number
-    }
     scrollProgress: number
     smoothScrollProgress: number
     state: 0
@@ -124,8 +114,6 @@ const works = [
       this.container = this.el.querySelector('.js-container')
       this.ruler = this.el.querySelector('.js-ruler')
       this.scene = this.container.querySelector('.js-scene')
-      this.canvas = this.container.querySelector('.js-canvas')
-      this.ctx = this.canvas.getContext('2d')
       this.title = this.container.querySelector('.js-title')
       this.videos = this.container.querySelectorAll('video')
 
@@ -161,14 +149,8 @@ const works = [
         this.works.push(work)
       })
 
-      this.points = []
-
       this.scrollProgress = 0
       this.smoothScrollProgress = 0
-      this.last = {
-        animationProgress: 0,
-        pointsProgress: 0,
-      }
 
       this.isPaused = true
       this.loadIsStarted = false
@@ -185,10 +167,8 @@ const works = [
      * Init
      */
     init() {
-      this.setCtxStyle()
       this.setSize()
       this.setMask()
-      this.setPoints()
       this.setLetters()
       this.setWorks()
       this.setTimeline()
@@ -213,7 +193,6 @@ const works = [
      * Bind events
      */
     bindEvents() {
-      Emitter.on('contrastchange', this.setCtxStyle, this)
       Emitter.on('resize', this.onResize, this)
 
       document.addEventListener('intro', () => {
@@ -230,10 +209,8 @@ const works = [
      */
     onResize(widthChanged) {
       if (widthChanged) {
-        this.setCtxStyle()
         this.setSize()
         this.setMask()
-        this.setPoints()
         this.setLetters()
         this.setWorks()
         this.setTimeline()
@@ -259,19 +236,6 @@ const works = [
     }
 
     /**
-     * Set canvas style
-     */
-    setCtxStyle() {
-      const color = getComputedStyle(this.el).getPropertyValue(
-        '--color-primary'
-      )
-
-      Ticker.nextTick(() => {
-        this.ctx.strokeStyle = color
-      })
-    }
-
-    /**
      * Set size
      */
     setSize() {
@@ -285,9 +249,6 @@ const works = [
         width: window.safeWidth,
         height: window.safeHeight,
       }
-
-      this.canvas.width = this.bounding.width
-      this.canvas.height = this.bounding.height
 
       this.speed = Math.hypot(this.bounding.width, this.bounding.height) * 4
     }
@@ -518,19 +479,6 @@ const works = [
       tl.fromTo(
         this,
         {
-          pointsProgress: 0,
-        },
-        {
-          pointsProgress: 1,
-          duration: 1,
-          ease: 'power4.inOut',
-        },
-        0
-      )
-
-      tl.fromTo(
-        this,
-        {
           state: 0,
         },
         {
@@ -626,19 +574,6 @@ const works = [
         },
         '-=1.25'
       )
-
-      tl.fromTo(
-        this,
-        {
-          pointsProgress: 1,
-        },
-        {
-          pointsProgress: 0,
-          duration: 1,
-          ease: 'power4.inOut',
-        },
-        '-=1.25'
-      )
     }
 
     /**
@@ -697,89 +632,6 @@ const works = [
     }
 
     /**
-     * Set points
-     */
-    setPoints() {
-      const { bounding } = this
-
-      this.points = []
-
-      const gap = 24
-      const cols = Math.ceil((bounding.width * 1.2) / gap)
-      const rows = Math.ceil((bounding.height * 1.2) / gap)
-
-      const offsetX = (bounding.width - cols * gap) * 0.5
-      const offsetY = (bounding.height - rows * gap) * 0.5
-
-      const hWidth = bounding.width * 0.5
-      const hHeight = bounding.height * 0.5
-
-      for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-          const x = i * gap + offsetX
-          const y = j * gap + offsetY
-
-          const dx = hWidth - x
-          const dy = hHeight - y
-
-          this.points.push({
-            x,
-            y,
-            dx,
-            dy,
-            m: Math.random(),
-            flowX: 0,
-          })
-        }
-      }
-    }
-
-    /**
-     * Move points
-     */
-    movePoints() {
-      const { points, animationProgress } = this
-
-      points.forEach((p) => {
-        // Flow
-        p.flowX = (animationProgress * -0.05) % 24
-      })
-    }
-
-    /**
-     * Draw points
-     */
-    drawPoints() {
-      const { bounding, ctx, points, animationProgress, pointsProgress, last } =
-        this
-
-      const rAnimationProgress = Math.round(animationProgress * 100) / 100
-      const rPointsProgress = Math.round(pointsProgress * 100) / 100
-
-      if (
-        rPointsProgress === last.pointsProgress &&
-        rAnimationProgress === last.animationProgress
-      )
-        return
-
-      ctx.clearRect(0, 0, bounding.width, bounding.height)
-
-      ctx.beginPath()
-
-      points.forEach((point) => {
-        const x = point.x + point.dx * (1 - pointsProgress) * 0.2 + point.flowX
-        const y = point.y + point.dy * (1 - pointsProgress) * 0.2
-
-        ctx.rect(x, y, 0.5, 0.5)
-      })
-
-      ctx.stroke()
-
-      last.pointsProgress = rPointsProgress
-      last.animationProgress = rAnimationProgress
-    }
-
-    /**
      * Tick
      */
     tick() {
@@ -804,11 +656,7 @@ const works = [
       )
 
       // Movement
-      this.movePoints()
       this.moveLetters()
-
-      // Draw
-      this.drawPoints()
     }
   }
 
@@ -1074,23 +922,6 @@ const works = [
             )
             scale(var(--size));
         }
-      }
-    }
-
-    .s__canvas {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
-
-      width: 100%;
-      height: 100%;
-
-      transform: translate3d(0, calc(var(--scroll-progress) * -5%), 0);
-
-      @include mq(phone) {
-        transform: none;
       }
     }
   }
