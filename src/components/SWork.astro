@@ -180,11 +180,7 @@ const works = [
       this.loadIsStarted = true
 
       // If section is already in view (fast scroll / refresh mid-page), kick off tick
-      const rect = this.el.getBoundingClientRect()
-      if (rect.top < window.innerHeight && rect.bottom > 0) {
-        this.isPaused = false
-        Emitter.on('tick', this.tick, this)
-      }
+      this.checkVisibility()
 
       ScrollTrigger.refresh()
     }
@@ -195,6 +191,12 @@ const works = [
     bindEvents() {
       Emitter.on('resize', this.onResize, this)
 
+      // Safety net: some browsers can miss the IntersectionObserver-driven
+      // 'intersect' event (e.g. if it fires before this listener is
+      // registered), permanently freezing the section's tick-driven
+      // animations. Re-verify visibility on every scroll as a fallback.
+      Emitter.on('scroll', this.checkVisibility, this)
+
       document.addEventListener('intro', () => {
         this.el.style.opacity = '1'
         ScrollTrigger.refresh()
@@ -203,6 +205,37 @@ const works = [
       this.el.addEventListener('intersect', this.onIntersect.bind(this), {
         passive: true,
       })
+    }
+
+    /**
+     * Set paused state and (de)register the tick listener accordingly
+     */
+    setPaused(isPaused) {
+      if (isPaused === this.isPaused) return
+
+      this.isPaused = isPaused
+
+      if (this.isPaused) {
+        Emitter.off('tick', this.tick, this)
+      } else {
+        Emitter.on('tick', this.tick, this)
+      }
+
+      if (!this.loadIsStarted) {
+        this.loadNextVideo()
+        this.loadIsStarted = true
+      }
+    }
+
+    /**
+     * Re-check visibility against the current scroll position, in case
+     * the IntersectionObserver's 'intersect' event was missed
+     */
+    checkVisibility() {
+      const rect = this.el.getBoundingClientRect()
+      const isIntersecting = rect.top < window.innerHeight && rect.bottom > 0
+
+      this.setPaused(!isIntersecting)
     }
 
     /**
@@ -222,18 +255,7 @@ const works = [
      * Intersect handler
      */
     onIntersect(e) {
-      this.isPaused = !e.detail.isIntersecting
-
-      if (this.isPaused) {
-        Emitter.off('tick', this.tick, this)
-      } else {
-        Emitter.on('tick', this.tick, this)
-      }
-
-      if (!this.loadIsStarted) {
-        this.loadNextVideo()
-        this.loadIsStarted = true
-      }
+      this.setPaused(!e.detail.isIntersecting)
     }
 
     /**

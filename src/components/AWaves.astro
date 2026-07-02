@@ -73,6 +73,17 @@ const { class: className } = Astro.props
       this.setLines()
 
       this.bindEvents()
+
+      // Safety net: on some browsers the IntersectionObserver's first
+      // callback can fire before this element finishes registering its
+      // own 'intersect' listener, permanently missing the initial signal
+      // and leaving the animation frozen. Check visibility synchronously
+      // here as a fallback.
+      const rect = this.getBoundingClientRect()
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        this.isPaused = false
+        Emitter.on('tick', this.tick, this)
+      }
     }
 
     /**
