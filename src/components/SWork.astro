@@ -103,6 +103,7 @@ const works = [
     state: 0
     speed: number
     isPaused: boolean
+    isLockedAtEnd: boolean
     loadIsStarted: boolean
 
     /**
@@ -153,6 +154,7 @@ const works = [
       this.smoothScrollProgress = 0
 
       this.isPaused = true
+      this.isLockedAtEnd = false
       this.loadIsStarted = false
 
       // Init
@@ -236,6 +238,34 @@ const works = [
       const isIntersecting = rect.top < window.innerHeight && rect.bottom > 0
 
       this.setPaused(!isIntersecting)
+
+      // Safety net: once the page can't scroll any further (bottom
+      // toolbar hide/show on mobile fires a resize right at the max
+      // scroll position), lock the section in its resting end-state so a
+      // timeline rebuild can't render a mid-transition frame that bleeds
+      // into the sections below.
+      const atPageBottom = window.scrollY >= window.maxScrollTop - 1
+
+      if (atPageBottom) {
+        this.lockAtEnd()
+      } else if (this.isLockedAtEnd) {
+        this.isLockedAtEnd = false
+      }
+    }
+
+    /**
+     * Freeze the section at its resting end-state and stop ticking
+     */
+    lockAtEnd() {
+      this.isLockedAtEnd = true
+
+      this.tl?.progress(1)
+
+      this.scrollProgress = 1
+      this.smoothScrollProgress = 1
+      this.el.style.setProperty('--scroll-progress', '1')
+
+      this.setPaused(true)
     }
 
     /**
@@ -248,6 +278,11 @@ const works = [
         this.setLetters()
         this.setWorks()
         this.setTimeline()
+
+        if (this.isLockedAtEnd) {
+          this.isLockedAtEnd = false
+          this.lockAtEnd()
+        }
       }
     }
 
@@ -443,13 +478,11 @@ const works = [
 
       const worksEl = works.map((work) => work.el)
 
-      let { tl } = this
-
-      if (tl) {
-        tl.kill()
+      if (this.tl) {
+        this.tl.kill()
       }
 
-      tl = gsap.timeline({
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: el,
           start: 'top top',
@@ -598,6 +631,8 @@ const works = [
         },
         '-=1.25'
       )
+
+      this.tl = tl
     }
 
     /**
