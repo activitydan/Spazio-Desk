@@ -198,6 +198,13 @@ const base = import.meta.env.BASE_URL
 
         document.querySelectorAll('[data-intersect]').forEach((el) => observer.observe(el))
 
+        document.addEventListener('click', (e) => {
+          const nameEl = (e.target as HTMLElement).closest('.members-name') as HTMLElement | null
+          if (!nameEl) return
+          nameEl.classList.add('is-tapped')
+          setTimeout(() => nameEl.classList.remove('is-tapped'), 500)
+        })
+
         if (document.readyState === 'complete') {
           this.siteLoaded()
         } else {
@@ -606,6 +613,12 @@ const base = import.meta.env.BASE_URL
       justify-content: space-between;
       align-items: center;
       width: 100%;
+
+      @include mq(phone) {
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+      }
     }
 
     .members-name {
@@ -627,7 +640,8 @@ const base = import.meta.env.BASE_URL
       transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
-    .members-name:hover .members-arrow {
+    .members-name:hover .members-arrow,
+    .members-name.is-tapped .members-arrow {
       transform: translateX(6px);
     }
 
