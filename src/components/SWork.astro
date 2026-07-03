@@ -104,6 +104,7 @@ const works = [
     speed: number
     isPaused: boolean
     isLockedAtEnd: boolean
+    isParallaxFrozen: boolean
     loadIsStarted: boolean
 
     /**
@@ -155,6 +156,7 @@ const works = [
 
       this.isPaused = true
       this.isLockedAtEnd = false
+      this.isParallaxFrozen = false
       this.loadIsStarted = false
 
       // Init
@@ -278,6 +280,16 @@ const works = [
         this.setLetters()
         this.setWorks()
         this.setTimeline()
+
+        // Rebuilding the timeline creates a fresh ScrollTrigger, which
+        // won't necessarily re-fire onLeave/onEnterBack on its own if the
+        // current scroll position already sits past (or before) its end
+        // point, so re-sync the parallax freeze state to it directly.
+        if (this.tl?.scrollTrigger?.progress >= 1) {
+          this.freezeParallax()
+        } else {
+          this.unfreezeParallax()
+        }
 
         if (this.isLockedAtEnd) {
           this.isLockedAtEnd = false
@@ -488,6 +500,14 @@ const works = [
           start: 'top top',
           end: 'bottom 75%',
           scrub: 1,
+          // The exit animation itself finishes at the trigger's end, but
+          // the section stays partially in view for a while longer as it
+          // scrolls the rest of the way off-screen. Without this, the
+          // tick()-driven --scroll-progress parallax on .s__inner keeps
+          // drifting during that trailing scroll, making WORK look like
+          // it's still sliding after the animation has already settled.
+          onLeave: () => this.freezeParallax(),
+          onEnterBack: () => this.unfreezeParallax(),
         },
         onUpdate: () => {
           scene.style.setProperty('--state', String(this.state))
@@ -691,9 +711,27 @@ const works = [
     }
 
     /**
+     * Freeze the --scroll-progress parallax once the exit animation has
+     * finished, so it stops drifting while the section keeps scrolling
+     * the rest of the way out of view
+     */
+    freezeParallax() {
+      this.isParallaxFrozen = true
+    }
+
+    /**
+     * Resume the parallax once scrolling back up into the section
+     */
+    unfreezeParallax() {
+      this.isParallaxFrozen = false
+    }
+
+    /**
      * Tick
      */
     tick() {
+      if (this.isParallaxFrozen) return
+
       // Calculate scroll progress
       this.scrollProgress =
         Math.max(
