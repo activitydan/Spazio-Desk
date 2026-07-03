@@ -385,6 +385,17 @@ const base = import.meta.env.BASE_URL
 
         this.setScrollProgress()
         Emitter.emit('resize', widthChanged, heightChanged)
+
+        // Sections recalculate their own DOM synchronously above, but GSAP
+        // caches each ScrollTrigger's start/end pixel positions and never
+        // re-measures them on its own after a resize/orientation change.
+        // Without this, every pinned/scrubbed animation keeps mapping
+        // scroll progress onto stale (pre-resize) coordinates, which is
+        // what makes sections look totally deformed after rotating the
+        // device.
+        if (widthChanged || heightChanged) {
+          ScrollTrigger.refresh()
+        }
       }
 
       onScroll() {
@@ -411,9 +422,6 @@ const base = import.meta.env.BASE_URL
 
         const tl = gsap.timeline()
 
-        tl.set(wrapper, { opacity: '' })
-        tl.set(intro, { background: 'transparent' })
-
         tl.fromTo(
           logoSvg,
           { scaleY: 0, transformOrigin: '50% 100%' },
@@ -430,6 +438,9 @@ const base = import.meta.env.BASE_URL
 
         tl.from(borderTop, { scaleY: 0, duration: 3, ease: 'power3.inOut' }, 1)
         tl.from([borderLeft, borderRight], { scaleX: 0, duration: 3, ease: 'power3.inOut' }, 1)
+
+        tl.set(wrapper, { opacity: '' }, '-=1.85')
+        tl.set(intro, { background: 'transparent' }, '-=1.85')
 
         tl.call(() => {
           document.dispatchEvent(new CustomEvent('intro'))
