@@ -411,9 +411,6 @@ const base = import.meta.env.BASE_URL
 
         const tl = gsap.timeline()
 
-        tl.set(wrapper, { opacity: '' })
-        tl.set(intro, { background: 'transparent' })
-
         tl.fromTo(
           logoSvg,
           { scaleY: 0, transformOrigin: '50% 100%' },
@@ -430,6 +427,9 @@ const base = import.meta.env.BASE_URL
 
         tl.from(borderTop, { scaleY: 0, duration: 3, ease: 'power3.inOut' }, 1)
         tl.from([borderLeft, borderRight], { scaleX: 0, duration: 3, ease: 'power3.inOut' }, 1)
+
+        tl.set(wrapper, { opacity: '' }, '-=1.85')
+        tl.set(intro, { background: 'transparent' }, '-=1.85')
 
         tl.call(() => {
           document.dispatchEvent(new CustomEvent('intro'))

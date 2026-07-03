@@ -444,14 +444,6 @@ const base = import.meta.env.BASE_URL
         // Timeline
         const tl = gsap.timeline()
 
-        tl.set(wrapper, {
-          opacity: '',
-        })
-
-        tl.set(intro, {
-          background: 'transparent',
-        })
-
         tl.fromTo(
           logoSvg,
           {
@@ -499,6 +491,18 @@ const base = import.meta.env.BASE_URL
             ease: 'power3.inOut',
           },
           1
+        )
+
+        tl.set(
+          wrapper,
+          { opacity: '' },
+          '-=1.85'
+        )
+
+        tl.set(
+          intro,
+          { background: 'transparent' },
+          '-=1.85'
         )
 
         tl.call(
