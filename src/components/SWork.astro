@@ -262,10 +262,7 @@ const works = [
       this.isLockedAtEnd = true
 
       this.tl?.progress(1)
-
-      this.scrollProgress = 1
-      this.smoothScrollProgress = 1
-      this.el.style.setProperty('--scroll-progress', '1')
+      this.freezeParallax()
 
       this.setPaused(true)
     }
@@ -711,12 +708,17 @@ const works = [
     }
 
     /**
-     * Freeze the --scroll-progress parallax once the exit animation has
-     * finished, so it stops drifting while the section keeps scrolling
-     * the rest of the way out of view
+     * Snap the --scroll-progress parallax back to its resting (centered)
+     * value once the exit animation has finished, instead of leaving
+     * .s__inner wherever it had drifted to, then freeze it there while
+     * the section keeps scrolling the rest of the way out of view
      */
     freezeParallax() {
       this.isParallaxFrozen = true
+
+      this.scrollProgress = 0
+      this.smoothScrollProgress = 0
+      this.el.style.setProperty('--scroll-progress', '0')
     }
 
     /**
