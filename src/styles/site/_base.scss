@@ -21,19 +21,10 @@
 html {
   @include t(base);
 
-  width: 100%;
-
   background-color: color(secondary);
   scrollbar-width: none;
 
   color: color(secondary);
-
-  // Safari on iOS clips horizontal overflow against <html>, not <body>.
-  // Without this, full-bleed elements that intentionally extend past
-  // 100% width (e.g. the WORK section's mask) can rubber-band the whole
-  // page sideways and cut content off the right edge.
-  overflow-x: hidden;
-  overscroll-behavior-x: none;
 
   &.is-scroll-blocked {
     &,
@@ -45,12 +36,29 @@ html {
 }
 
 body {
-  width: 100%;
-
   background-color: color(primary);
   overflow-x: hidden;
   overflow-y: visible;
-  overscroll-behavior-x: none;
 
   font-family: inherit;
+}
+
+// Safari (desktop + iOS) clips horizontal overflow against <html>, not
+// <body>, so full-bleed elements that intentionally extend past 100%
+// width (e.g. the WORK section's mask) can rubber-band the whole page
+// sideways there and cut content off the right edge. Scope the fix to
+// Safari/WebKit only via the standard `-webkit-touch-callout` feature
+// check (Chromium doesn't support that property, even though it's also
+// -webkit-prefixed) since it caused layout regressions on Chromium.
+@supports (-webkit-touch-callout: none) {
+  html {
+    width: 100%;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+  }
+
+  body {
+    width: 100%;
+    overscroll-behavior-x: none;
+  }
 }
