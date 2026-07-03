@@ -21,10 +21,19 @@
 html {
   @include t(base);
 
+  width: 100%;
+
   background-color: color(secondary);
   scrollbar-width: none;
 
   color: color(secondary);
+
+  // Safari on iOS clips horizontal overflow against <html>, not <body>.
+  // Without this, full-bleed elements that intentionally extend past
+  // 100% width (e.g. the WORK section's mask) can rubber-band the whole
+  // page sideways and cut content off the right edge.
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
 
   &.is-scroll-blocked {
     &,
@@ -36,9 +45,12 @@ html {
 }
 
 body {
+  width: 100%;
+
   background-color: color(primary);
   overflow-x: hidden;
   overflow-y: visible;
+  overscroll-behavior-x: none;
 
   font-family: inherit;
 }
