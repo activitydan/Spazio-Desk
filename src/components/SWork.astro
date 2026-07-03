@@ -278,16 +278,6 @@ const works = [
         this.setWorks()
         this.setTimeline()
 
-        // Rebuilding the timeline creates a fresh ScrollTrigger, which
-        // won't necessarily re-fire onLeave/onEnterBack on its own if the
-        // current scroll position already sits past (or before) its end
-        // point, so re-sync the parallax freeze state to it directly.
-        if (this.tl?.scrollTrigger?.progress >= 1) {
-          this.freezeParallax()
-        } else {
-          this.unfreezeParallax()
-        }
-
         if (this.isLockedAtEnd) {
           this.isLockedAtEnd = false
           this.lockAtEnd()
@@ -497,14 +487,6 @@ const works = [
           start: 'top top',
           end: 'bottom 75%',
           scrub: 1,
-          // The exit animation itself finishes at the trigger's end, but
-          // the section stays partially in view for a while longer as it
-          // scrolls the rest of the way off-screen. Without this, the
-          // tick()-driven --scroll-progress parallax on .s__inner keeps
-          // drifting during that trailing scroll, making WORK look like
-          // it's still sliding after the animation has already settled.
-          onLeave: () => this.freezeParallax(),
-          onEnterBack: () => this.unfreezeParallax(),
         },
         onUpdate: () => {
           scene.style.setProperty('--state', String(this.state))
@@ -593,7 +575,14 @@ const works = [
         0.75
       )
 
-      tl.fromTo(
+      // Once this tween finishes, the ghosts have fully closed back into
+      // a single WORK word. From this point until the section scrolls
+      // fully out of view, .s__inner should just hold still instead of
+      // continuing to drift with the tick()-driven --scroll-progress
+      // parallax, so pin the freeze to this specific tween completing
+      // (and unpin it if scrolling back up re-opens the ghosts) rather
+      // than to the section's overall scroll-trigger lifecycle.
+      const closeGhostsTween = tl.fromTo(
         this,
         {
           state: 1,
@@ -603,6 +592,8 @@ const works = [
           duration: 0.75,
           ease: 'power4.inOut',
           immediateRender: false,
+          onComplete: () => this.freezeParallax(),
+          onReverseComplete: () => this.unfreezeParallax(),
         },
         '-=1.25'
       )
@@ -650,6 +641,22 @@ const works = [
       )
 
       this.tl = tl
+
+      // Rebuilding the timeline creates a fresh tween, which won't
+      // necessarily re-fire onComplete/onReverseComplete on its own if
+      // the current scroll position already sits past (or before) the
+      // point where the ghosts close, so re-sync the parallax freeze
+      // state to it directly. Compare against the scrollTrigger's own
+      // (immediate, un-eased) progress rather than tl.time(), since
+      // scrub smoothing means the timeline's actual playhead can still
+      // be lagging behind the real scroll position right after creation.
+      const rawTime = (tl.scrollTrigger?.progress ?? 0) * tl.duration()
+
+      if (rawTime >= closeGhostsTween.endTime()) {
+        this.freezeParallax()
+      } else {
+        this.unfreezeParallax()
+      }
     }
 
     /**
@@ -709,9 +716,10 @@ const works = [
 
     /**
      * Smoothly settle the --scroll-progress parallax back to its resting
-     * (centered) value once the exit animation has finished, instead of
-     * snapping .s__inner there instantly, then freeze it while the
-     * section keeps scrolling the rest of the way out of view
+     * (centered) value once the ghosts have closed back into a single
+     * word, instead of snapping .s__inner there instantly, then freeze
+     * it while the section keeps scrolling the rest of the way out of
+     * view
      */
     freezeParallax() {
       this.isParallaxFrozen = true
@@ -728,7 +736,7 @@ const works = [
     }
 
     /**
-     * Resume the parallax once scrolling back up into the section
+     * Resume the parallax if scrolling back up re-opens the ghosts
      */
     unfreezeParallax() {
       this.isParallaxFrozen = false
