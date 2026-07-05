@@ -35,6 +35,21 @@ const base = import.meta.env.BASE_URL
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://spaziodesk.com/images/og-image.png" />
 
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Spazio Desk',
+      url: 'https://spaziodesk.com',
+      member: [
+        {
+          '@type': 'Person',
+          name: 'Alberto Lauria',
+          url: 'https://albertolauria.com',
+          sameAs: ['https://albertolauria.com'],
+        },
+      ],
+    })} />
+
     <link rel="icon" type="image/png" href={`${base}icons/favicon-16x16.png`} sizes="16x16" />
     <link rel="icon" type="image/png" href={`${base}icons/favicon-32x32.png`} sizes="32x32" />
     <link rel="shortcut icon" href={`${base}icons/favicon.ico`} />
