@@ -6,6 +6,8 @@ import '../styles/global.scss'
 
 import Mail from '@lucide/astro/icons/mail'
 import Phone from '@lucide/astro/icons/phone'
+import CalendarClock from '@lucide/astro/icons/calendar-clock'
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right'
 
 const base = import.meta.env.BASE_URL
 ---
@@ -92,6 +94,20 @@ const base = import.meta.env.BASE_URL
             </a>
           </li>
         </ul>
+
+        <a
+          href="https://calendly.com/spaziodesk/30min"
+          target="_blank"
+          rel="noreferrer"
+          class="contact-calendly"
+        >
+          <CalendarClock class="contact-calendly__icon" stroke-width={2} aria-hidden="true" />
+          <span class="contact-calendly__body">
+            <span class="contact-calendly__title">Prenota una call</span>
+            <span class="contact-calendly__subtitle">30 minuti · via Calendly</span>
+          </span>
+          <ArrowUpRight class="contact-calendly__arrow" stroke-width={2} aria-hidden="true" />
+        </a>
       </main>
 
       <SiteFoot />
@@ -476,8 +492,10 @@ const base = import.meta.env.BASE_URL
 
     .s-contact {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: clamp(2.5rem, 6vw, 4rem);
       min-height: calc(100svh - 6rem);
       padding: 8rem 2rem;
       background: color(primary);
@@ -545,6 +563,67 @@ const base = import.meta.env.BASE_URL
     @keyframes contact-cursor-blink {
       0%, 100% { opacity: 1; }
       50% { opacity: 0; }
+    }
+
+    // ── Calendly box ─────────────────────────────────────────────────────────
+
+    .contact-calendly {
+      display: flex;
+      align-items: center;
+      gap: clamp(1rem, 2.5vw, 1.75rem);
+
+      width: 100%;
+      max-width: 60rem;
+      padding: clamp(1.25rem, 3vw, 2rem) clamp(1.5rem, 3vw, 2.25rem);
+
+      border: 1.5px solid color(secondary);
+      border-radius: 1rem;
+
+      color: color(secondary);
+      text-decoration: none;
+
+      transition: background 0.3s ease, color 0.3s ease;
+
+      &:hover {
+        background: color(secondary);
+        color: color(primary);
+      }
+    }
+
+    .contact-calendly__icon {
+      flex-shrink: 0;
+
+      width: clamp(1.5rem, 3vw, 2rem);
+      height: clamp(1.5rem, 3vw, 2rem);
+    }
+
+    .contact-calendly__body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2em;
+    }
+
+    .contact-calendly__title {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+
+    .contact-calendly__subtitle {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-weight: 500;
+      font-size: clamp(0.75rem, 1.4vw, 0.9rem);
+      opacity: 0.65;
+    }
+
+    .contact-calendly__arrow {
+      flex-shrink: 0;
+      margin-left: auto;
+
+      width: clamp(1.15rem, 2.2vw, 1.5rem);
+      height: clamp(1.15rem, 2.2vw, 1.5rem);
     }
   </style>
 </html>
