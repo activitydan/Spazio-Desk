@@ -70,51 +70,44 @@ const base = import.meta.env.BASE_URL
       ]} />
 
       <main class="s-contact" data-intersect>
-        <a
-          href="https://calendly.com/spaziodesk/30min"
-          target="_blank"
-          rel="noreferrer"
-          class="contact-badge"
-        >
-          <span class="contact-badge__pulse" aria-hidden="true"></span>
-          <CalendarClock class="contact-badge__icon" stroke-width={2.5} aria-hidden="true" />
-          <span class="contact-badge__text">Prenota una call su Calendly</span>
-          <ArrowUpRight class="contact-badge__arrow" stroke-width={2.5} aria-hidden="true" />
-        </a>
-
         <ul class="contact-list">
           <li class="contact-item">
             <a href="mailto:spaziodesk@gmail.com" class="contact-item__link">
-              <span class="contact-item__icon-wrap">
-                <Mail class="contact-item__icon" stroke-width={2.5} aria-hidden="true" />
-              </span>
+              <Mail class="contact-item__icon" stroke-width={2.5} aria-hidden="true" />
               <span class="contact-item__text js-typewriter">spaziodesk@gmail.com</span>
-              <ArrowUpRight class="contact-item__arrow" stroke-width={2.5} aria-hidden="true" />
             </a>
           </li>
           <li class="contact-item">
             <a href="https://instagram.com/spazio_desk" target="_blank" rel="noreferrer" class="contact-item__link">
-              <span class="contact-item__icon-wrap">
-                <svg class="contact-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-                </svg>
-              </span>
+              <svg class="contact-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
               <span class="contact-item__text js-typewriter">@spazio_desk</span>
-              <ArrowUpRight class="contact-item__arrow" stroke-width={2.5} aria-hidden="true" />
             </a>
           </li>
           <li class="contact-item">
             <a href="tel:+393273005059" class="contact-item__link">
-              <span class="contact-item__icon-wrap">
-                <Phone class="contact-item__icon" stroke-width={2.5} aria-hidden="true" />
-              </span>
+              <Phone class="contact-item__icon" stroke-width={2.5} aria-hidden="true" />
               <span class="contact-item__text js-typewriter">+39 327 300 5059</span>
-              <ArrowUpRight class="contact-item__arrow" stroke-width={2.5} aria-hidden="true" />
             </a>
           </li>
         </ul>
+
+        <a
+          href="https://calendly.com/spaziodesk/30min"
+          target="_blank"
+          rel="noreferrer"
+          class="contact-calendly"
+        >
+          <CalendarClock class="contact-calendly__icon" stroke-width={2} aria-hidden="true" />
+          <span class="contact-calendly__body">
+            <span class="contact-calendly__title">Prenota una call</span>
+            <span class="contact-calendly__subtitle">30 minuti · via Calendly</span>
+          </span>
+          <ArrowUpRight class="contact-calendly__arrow" stroke-width={2} aria-hidden="true" />
+        </a>
       </main>
 
       <SiteFoot />
@@ -502,7 +495,7 @@ const base = import.meta.env.BASE_URL
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: clamp(2rem, 5vw, 3.5rem);
+      gap: clamp(2.5rem, 6vw, 4rem);
       min-height: calc(100svh - 6rem);
       padding: 8rem 2rem;
       background: color(primary);
@@ -515,156 +508,6 @@ const base = import.meta.env.BASE_URL
       }
     }
 
-    // ── Calendly badge ──────────────────────────────────────────────────────
-
-    .contact-badge {
-      position: relative;
-      z-index: 1;
-
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55em;
-
-      padding: 0.85em 1.3em 0.85em 1.05em;
-
-      color: color(secondary);
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      font-weight: 700;
-      font-size: clamp(0.7rem, 1.5vw, 0.9rem);
-      letter-spacing: 0.02em;
-      text-decoration: none;
-      text-transform: uppercase;
-      white-space: nowrap;
-
-      border: 1.5px solid color(secondary);
-      border-radius: 999rem;
-
-      overflow: hidden;
-
-      &::before,
-      &::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-      }
-
-      // Idle shimmer sweep (Magic UI "shiny button" reference)
-      &::before {
-        background: linear-gradient(100deg, transparent 35%, color(secondary) 50%, transparent 65%);
-        background-size: 250% 100%;
-        opacity: 0.2;
-        animation: contact-badge-shine 3.4s ease-in-out infinite;
-      }
-
-      // Fill-in on hover
-      &::after {
-        background: color(secondary);
-        border-radius: inherit;
-        scale: 0;
-        transition: scale 0.5s ease(out-back);
-        will-change: scale;
-      }
-
-      @media (hover: hover) and (pointer: fine) {
-        transition: border-color 0.4s ease, translate 0.4s ease(out-quint);
-        will-change: translate;
-
-        &:hover {
-          border-color: color(secondary);
-          translate: 0 -0.15em;
-
-          &::after {
-            scale: 1;
-          }
-
-          .contact-badge__icon {
-            color: color(primary);
-            rotate: -14deg;
-            scale: 1.12;
-          }
-
-          .contact-badge__text,
-          .contact-badge__arrow,
-          .contact-badge__pulse {
-            color: color(primary);
-          }
-
-          .contact-badge__arrow {
-            translate: 0.15em -0.15em;
-          }
-        }
-      }
-    }
-
-    .contact-badge__pulse {
-      position: relative;
-
-      width: 0.45em;
-      height: 0.45em;
-      flex-shrink: 0;
-
-      background: currentColor;
-      border-radius: 50%;
-
-      transition: color 0.35s ease;
-
-      &::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-
-        background: currentColor;
-        border-radius: 50%;
-
-        transition: color 0.35s ease;
-        animation: contact-badge-pulse 2.2s ease-out infinite;
-      }
-    }
-
-    .contact-badge__icon {
-      flex-shrink: 0;
-
-      width: 1.2em;
-      height: 1.2em;
-
-      transition: color 0.35s ease, rotate 0.5s ease(out-back), scale 0.5s ease(out-back);
-      will-change: rotate, scale;
-    }
-
-    .contact-badge__text {
-      transition: color 0.35s ease;
-    }
-
-    .contact-badge__arrow {
-      flex-shrink: 0;
-
-      width: 1.1em;
-      height: 1.1em;
-
-      transition: color 0.35s ease, translate 0.4s ease(out-back);
-      will-change: translate;
-    }
-
-    @keyframes contact-badge-shine {
-      0% { background-position: 130% 0; }
-      55%, 100% { background-position: -30% 0; }
-    }
-
-    @keyframes contact-badge-pulse {
-      0% { scale: 1; opacity: 0.6; }
-      100% { scale: 3.2; opacity: 0; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .contact-badge::before,
-      .contact-badge__pulse::before {
-        animation: none;
-      }
-    }
-
-    // ── Contact list ─────────────────────────────────────────────────────────
-
     .contact-list {
       width: 100%;
       max-width: 60rem;
@@ -674,8 +517,6 @@ const base = import.meta.env.BASE_URL
     }
 
     .contact-item__link {
-      position: relative;
-
       display: flex;
       align-items: center;
       gap: clamp(0.75rem, 2vw, 1.75rem);
@@ -685,80 +526,18 @@ const base = import.meta.env.BASE_URL
       color: color(secondary);
       text-decoration: none;
 
-      @media (hover: hover) and (pointer: fine) {
-        &:hover {
-          .contact-item__icon-wrap {
-            translate: 0 -0.15em;
+      transition: opacity 0.2s ease;
 
-            &::before {
-              scale: 1;
-            }
-          }
-
-          .contact-item__icon {
-            color: color(primary);
-            rotate: -10deg;
-            scale: 1.12;
-          }
-
-          .contact-item__text {
-            translate: 0.3em 0;
-          }
-
-          .contact-item__arrow {
-            opacity: 1;
-            translate: 0 0;
-            scale: 1;
-          }
-        }
-      }
-    }
-
-    .contact-item__icon-wrap {
-      position: relative;
-      z-index: 1;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-
-      width: clamp(2.75rem, 5.5vw, 4.25rem);
-      height: clamp(2.75rem, 5.5vw, 4.25rem);
-
-      border: 1.5px solid color(secondary);
-      border-radius: 50%;
-
-      overflow: hidden;
-
-      transition: translate 0.4s ease(out-quint);
-      will-change: translate;
-
-      &::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-
-        background: color(secondary);
-        border-radius: 50%;
-        scale: 0;
-
-        transition: scale 0.5s ease(out-back);
-        will-change: scale;
+      &:hover {
+        opacity: 0.6;
       }
     }
 
     .contact-item__icon {
-      position: relative;
-
       flex-shrink: 0;
 
-      width: clamp(1.35rem, 2.6vw, 2rem);
-      height: clamp(1.35rem, 2.6vw, 2rem);
-
-      transition: color 0.35s ease, rotate 0.5s ease(out-back), scale 0.5s ease(out-back);
-      will-change: rotate, scale;
+      width: clamp(1.5rem, 3vw, 2.5rem);
+      height: clamp(1.5rem, 3vw, 2.5rem);
     }
 
     .contact-item__text {
@@ -768,9 +547,6 @@ const base = import.meta.env.BASE_URL
       line-height: 1.05;
       letter-spacing: -0.04em;
       text-transform: uppercase;
-
-      transition: translate 0.4s ease(out-quint);
-      will-change: translate;
 
       &.is-typing::after {
         content: '';
@@ -784,23 +560,70 @@ const base = import.meta.env.BASE_URL
       }
     }
 
-    .contact-item__arrow {
-      flex-shrink: 0;
-
-      width: clamp(1.15rem, 2.4vw, 1.75rem);
-      height: clamp(1.15rem, 2.4vw, 1.75rem);
-
-      opacity: 0;
-      scale: 0.6;
-      translate: -0.4em 0.4em;
-
-      transition: opacity 0.35s ease, scale 0.45s ease(out-back), translate 0.45s ease(out-back);
-      will-change: opacity, scale, translate;
-    }
-
     @keyframes contact-cursor-blink {
       0%, 100% { opacity: 1; }
       50% { opacity: 0; }
+    }
+
+    // ── Calendly box ─────────────────────────────────────────────────────────
+
+    .contact-calendly {
+      display: flex;
+      align-items: center;
+      gap: clamp(1rem, 2.5vw, 1.75rem);
+
+      width: 100%;
+      max-width: 60rem;
+      padding: clamp(1.25rem, 3vw, 2rem) clamp(1.5rem, 3vw, 2.25rem);
+
+      border: 1.5px solid color(secondary);
+      border-radius: 1rem;
+
+      color: color(secondary);
+      text-decoration: none;
+
+      transition: background 0.3s ease, color 0.3s ease;
+
+      &:hover {
+        background: color(secondary);
+        color: color(primary);
+      }
+    }
+
+    .contact-calendly__icon {
+      flex-shrink: 0;
+
+      width: clamp(1.5rem, 3vw, 2rem);
+      height: clamp(1.5rem, 3vw, 2rem);
+    }
+
+    .contact-calendly__body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2em;
+    }
+
+    .contact-calendly__title {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+
+    .contact-calendly__subtitle {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-weight: 500;
+      font-size: clamp(0.75rem, 1.4vw, 0.9rem);
+      opacity: 0.65;
+    }
+
+    .contact-calendly__arrow {
+      flex-shrink: 0;
+      margin-left: auto;
+
+      width: clamp(1.15rem, 2.2vw, 1.5rem);
+      height: clamp(1.15rem, 2.2vw, 1.5rem);
     }
   </style>
 </html>
