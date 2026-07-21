@@ -3,46 +3,21 @@ const { caption, cssClass, index, site, src, total } = Astro.props
 
 // A random string with the syntax '[a-z][0-9]{3}-index-total'
 const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
-
-const isImage = !src.endsWith('.mp4')
-const isLink = site && site !== '#'
 ---
 
 <a-work class={cssClass}>
   <div class="a__inner">
-    {isLink ? (
-      <a href={site} target="_blank" rel="noopener noreferrer" class="a__link">
-        {isImage ? (
-          <img src={src} class="a__video" alt={caption} loading="lazy" />
-        ) : (
-          <video
-            data-src={src}
-            class="a__video js-video"
-            loop
-            muted
-            playsinline
-            width="1082"
-            height="636"
-          ></video>
-        )}
-      </a>
-    ) : (
-      <div>
-        {isImage ? (
-          <img src={src} class="a__video" alt={caption} loading="lazy" />
-        ) : (
-          <video
-            data-src={src}
-            class="a__video js-video"
-            loop
-            muted
-            playsinline
-            width="1082"
-            height="636"
-          ></video>
-        )}
-      </div>
-    )}
+    <div>
+      <video
+        data-src={src}
+        class="a__video js-video"
+        loop
+        muted
+        playsinline
+        width="1082"
+        height="636"
+      >
+      </video>
 
       <div class="a__caption">
         <div class="a__caption__text">
@@ -53,6 +28,7 @@ const isLink = site && site !== '#'
           #{key}
         </div><!-- .a__caption__key -->
       </div><!-- .a__caption -->
+    </div>
   </div><!-- .a__inner -->
 </a-work>
 
@@ -148,12 +124,6 @@ const isLink = site && site !== '#'
       display: block;
       margin: 0;
       padding: 0;
-    }
-
-    .a__link {
-      display: block;
-      text-decoration: none;
-      color: inherit;
     }
 
     .a__video {
