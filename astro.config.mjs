@@ -2,6 +2,8 @@ import { defineConfig } from 'astro/config';
 import { fileURLToPath } from 'url';
 import path, { dirname } from 'path';
 
+import sitemap from '@astrojs/sitemap';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -13,7 +15,6 @@ const isGithubActions = process.env.GITHUB_ACTIONS === 'true'
 export default defineConfig({
   site: isGithubActions ? 'https://activitydan.github.io' : 'https://spaziodesk.com',
   base: isGithubActions ? '/Spazio-Desk/' : '/',
-
   scopedStyleStrategy: 'class',
 
   server: {
@@ -40,5 +41,13 @@ export default defineConfig({
 
   devToolbar: {
     enabled: false
-  }
+  },
+
+  integrations: [
+    sitemap({
+      // Placeholder page, not linked from navigation — keep it out of
+      // the sitemap so it doesn't dilute the site structure Google sees.
+      filter: (page) => !page.includes('/work-in-progress'),
+    })
+  ]
 });
