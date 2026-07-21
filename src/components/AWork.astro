@@ -78,7 +78,7 @@ const isLink = site && site !== '#'
      * Gets in view
      */
     inView() {
-      this.video.play()
+      if (this.video) this.video.play()
       this.isPlaying = true
 
       this.classList.add('is-inview')
@@ -88,7 +88,7 @@ const isLink = site && site !== '#'
      * Gets out view
      */
     outView() {
-      this.video.pause()
+      if (this.video) this.video.pause()
       this.isPlaying = false
 
       this.classList.remove('is-inview')
