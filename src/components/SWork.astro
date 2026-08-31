@@ -58,6 +58,19 @@ const works = [
 
     <div class="s__ruler js-ruler"></div>
   </div><!-- .s__outer -->
+
+  <!--
+    .s__outer's clip-path makes it a containing block for its own fixed
+    descendants (.s__inner, .s__mask-outer's video mask) — but that also
+    means anything positioned inside it gets clipped to .s__outer's own
+    box, whatever its transform. The hard cut always sits exactly at
+    .s__outer's (== .s-work's) top edge as it scrolls through the
+    viewport, regardless of which layer (.s__inner's panel or the video
+    mask) is visible there. So this lives OUTSIDE .s__outer, as a plain
+    absolutely-positioned sibling pinned to .s-work's top — it tracks
+    that edge automatically with scroll, no transform math needed.
+  -->
+  <div class="s__seam-blur" aria-hidden="true"></div>
 </section>
 
 <script>
@@ -813,29 +826,29 @@ const works = [
       @include mq(phone) {
         transform: none;
       }
+    }
 
-      // This panel slides up over the Hero section as the page scrolls
-      // into WORK, so its top edge is what reads as a hard cut between
-      // the two sections. Soften it with a blurred strip in the page's
-      // background color (matching each theme) instead of a sharp line.
-      &:before {
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 3;
+    // Blurred strip softening the hard cut where WORK slides up over the
+    // Hero. Centered on .s-work's top edge (half above, into the Hero
+    // side; half below, into whichever WORK layer is showing) so it
+    // straddles the seam wherever it currently sits in the viewport.
+    .s__seam-blur {
+      position: absolute;
+      top: -4rem;
+      left: 0;
+      z-index: 4;
 
-        width: 100%;
-        height: 8rem;
+      width: 100%;
+      height: 8rem;
 
-        background: linear-gradient(to bottom, color(primary), transparent);
-        filter: blur(1.5rem);
+      background: linear-gradient(to bottom, color(primary), transparent);
+      filter: blur(1.5rem);
 
-        content: '';
-        pointer-events: none;
+      pointer-events: none;
 
-        @include mq(phone) {
-          height: 4rem;
-        }
+      @include mq(phone) {
+        top: -2rem;
+        height: 4rem;
       }
     }
 
