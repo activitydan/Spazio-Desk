@@ -31,9 +31,16 @@ const menu = menuItems ?? [
       </a>
     </div><!-- .sb-logo -->
 
+    <!--
+      First line of the typewriter effect below (messages[0] in the
+      script) is pre-rendered here so its full size is already in the
+      initial paint instead of being typed in char-by-char, which was
+      being picked up as this page's (very slow) Largest Contentful
+      Paint element. The script continues the effect from message[1]
+      onward. Keep this in sync with messages[0] below.
+    -->
     <div class="sb-console" role="presentation">
-      <div class="sb-console__inner js-console">
-      </div><!-- .sb-console__inner -->
+      <div class="sb-console__inner js-console">&#10;Studio Collettivo Creativo</div><!-- .sb-console__inner -->
     </div><!-- .sb-console -->
 
     <nav class="sb-menu">
@@ -105,7 +112,10 @@ const menu = menuItems ?? [
         "Ragusa, Sicily",
         "Via ruggero settimo, 16",
       ]
-      this.messageIndex = 0
+      // messages[0] is already pre-rendered in the markup (see
+      // SiteHead.astro's template), so start the typewriter loop from
+      // the next one instead of retyping it from scratch.
+      this.messageIndex = 1
       this.message = ''
       this.messageLineBreak = false
       this.lastMessage = ''
