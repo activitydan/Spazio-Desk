@@ -157,7 +157,12 @@
 
           font-size: clamp(11rem, 48vw, 22rem);
 
-          padding-right: 0.5em;
+          // Each word is now wider than the viewport itself, so the gap
+          // before the next repeated item must be at least a full
+          // viewport width — otherwise the next repetition's leading
+          // letters are already on screen before the current one has
+          // fully scrolled past, reading as garbled duplicated text.
+          padding-right: 100vw;
         }
 
         &__word:first-child {
