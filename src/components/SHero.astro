@@ -5,10 +5,10 @@
   <div class="s__content js-content">
     <div class="s__marquee">
       <div class="s__marquee__track">
-        <span class="s__marquee__item">SPAZIO DESK</span>
-        <span class="s__marquee__item">SPAZIO DESK</span>
-        <span class="s__marquee__item">SPAZIO DESK</span>
-        <span class="s__marquee__item">SPAZIO DESK</span>
+        <span class="s__marquee__item"><span class="s__marquee__item__word">SPAZIO</span><span class="s__marquee__item__word">DESK</span></span>
+        <span class="s__marquee__item"><span class="s__marquee__item__word">SPAZIO</span><span class="s__marquee__item__word">DESK</span></span>
+        <span class="s__marquee__item"><span class="s__marquee__item__word">SPAZIO</span><span class="s__marquee__item__word">DESK</span></span>
+        <span class="s__marquee__item"><span class="s__marquee__item__word">SPAZIO</span><span class="s__marquee__item__word">DESK</span></span>
       </div>
     </div>
   </div>
@@ -134,6 +134,9 @@
       }
 
       &__item {
+        display: flex;
+        align-items: baseline;
+
         font: 700 clamp(9.44rem, 40.89vw, 58.2rem) / 1 'Helvetica Neue', Helvetica, Arial, sans-serif;
         text-transform: uppercase;
         letter-spacing: -4px;
@@ -146,6 +149,23 @@
         @include mq(tablet) {
           padding-top: 1rem;
           padding-bottom: 1rem;
+        }
+
+        @include mq(phone) {
+          flex-direction: column;
+          align-items: flex-start;
+
+          font-size: clamp(11rem, 48vw, 22rem);
+
+          padding-right: 0.5em;
+        }
+
+        &__word:first-child {
+          margin-right: 0.2em;
+
+          @include mq(phone) {
+            margin-right: 0;
+          }
         }
       }
     }
