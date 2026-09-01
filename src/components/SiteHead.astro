@@ -176,33 +176,33 @@ const menu = menuItems ?? [
       const logo = this.el.querySelector('.js-logo')
       const menuItems = this.el.querySelectorAll('.js-menu-item')
 
-      const items = [logo, ...menuItems]
+      // Order: logo, then each menu item (About, Contact), then the
+      // theme button — each pops in independently, like an old
+      // fluorescent light flickering on, with a delay after the previous
+      // one starts.
+      const items = [logo, ...menuItems, this.contrastButton]
 
       const tl = gsap.timeline()
 
-      tl.set(this.el, {
-        opacity: 1,
-      })
+      tl.set(this.el, { opacity: 1 }, 1)
 
-      tl.from(
-        this.el,
-        {
-          y: '-100%',
-          duration: 1.5,
-          ease: 'expo.inOut',
-        },
-        1
-      )
+      tl.set(items, { opacity: 0 }, 1)
 
-      tl.from(
+      tl.to(
         items,
         {
-          y: '-100%',
-          duration: 1.5,
-          ease: 'expo.out',
-          stagger: 0.1,
+          keyframes: [
+            { opacity: 1, duration: 0.04 },
+            { opacity: 0, duration: 0.03 },
+            { opacity: 1, duration: 0.05 },
+            { opacity: 0, duration: 0.08 },
+            { opacity: 1, duration: 0.03 },
+            { opacity: 0.3, duration: 0.1 },
+            { opacity: 1, duration: 0.3 },
+          ],
+          stagger: 0.2,
         },
-        1.5
+        1
       )
 
       tl.call(
@@ -210,7 +210,7 @@ const menu = menuItems ?? [
           this.canWrite = true
         },
         null,
-        1.5
+        1
       )
     }
 
