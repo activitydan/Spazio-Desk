@@ -191,16 +191,26 @@ const menu = menuItems ?? [
       tl.to(
         items,
         {
+          // Pure on/off cuts (opacity only ever 0 or 1, no dimmed or
+          // gradually-faded values), each an instant snap held in place,
+          // like an old light flickering. No fade anywhere, including the
+          // final step that leaves it on.
           keyframes: [
-            { opacity: 1, duration: 0.12 },
-            { opacity: 0, duration: 0.09 },
-            { opacity: 1, duration: 0.15 },
-            { opacity: 0, duration: 0.24 },
-            { opacity: 1, duration: 0.09 },
-            { opacity: 0.3, duration: 0.3 },
-            { opacity: 1, duration: 0.9 },
+            { opacity: 1, duration: 0, ease: 'none' },
+            { opacity: 1, duration: 0.08 },
+            { opacity: 0, duration: 0, ease: 'none' },
+            { opacity: 0, duration: 0.07 },
+            { opacity: 1, duration: 0, ease: 'none' },
+            { opacity: 1, duration: 0.1 },
+            { opacity: 0, duration: 0, ease: 'none' },
+            { opacity: 0, duration: 0.18 },
+            { opacity: 1, duration: 0, ease: 'none' },
+            { opacity: 1, duration: 0.06 },
+            { opacity: 0, duration: 0, ease: 'none' },
+            { opacity: 0, duration: 0.1 },
+            { opacity: 1, duration: 0, ease: 'none' },
           ],
-          stagger: 0.2,
+          stagger: 0.45,
         },
         1
       )
