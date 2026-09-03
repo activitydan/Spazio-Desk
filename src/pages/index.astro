@@ -386,6 +386,15 @@ const base = import.meta.env.BASE_URL
         this.setScrollProgress()
 
         Emitter.emit('resize', widthChanged, heightChanged)
+
+        // Always resync GSAP's own cached trigger/pin bounds after a
+        // resize settles, even when widthChanged/heightChanged end up
+        // false (e.g. opening then closing a DevTools panel: the two
+        // resize events can net to the same final width, but the
+        // transient in-between layout can still get picked up by
+        // ScrollTrigger's own independent auto-refresh before things
+        // settle back, leaving it out of sync with the final layout).
+        ScrollTrigger.refresh()
       }
 
       /**
