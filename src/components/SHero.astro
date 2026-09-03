@@ -83,17 +83,19 @@
         1
       )
 
-      // Shorter than the shrink/slide-up tween above (and than content's
-      // own reveal) on purpose: while this settles back to its resting
-      // position (invisible, clipped below Hero by overflow:hidden), it
-      // passes through Hero's own visible area mid-transition. Scrolling
-      // unblocks as soon as 'intro' fires (this tl's position 0), so a
-      // fast scroll/hash-jump into WORK right after can catch this tween
-      // still in progress, flashing the border across the Hero/WORK
-      // seam — keeping this brief shrinks that window.
-      tl.to(
+      // Instant on purpose, not animated: while this settles back to its
+      // resting position (invisible, clipped below Hero by
+      // overflow:hidden), any non-zero duration passes it through
+      // Hero's own visible area mid-transition. Scrolling unblocks as
+      // soon as 'intro' fires (this tl's position 0), so a fast scroll/
+      // hash-jump into WORK right after could catch a still-animating
+      // tween here, flashing the border across the Hero/WORK seam. This
+      // step has no visible purpose of its own (attention is on
+      // content's own reveal, happening at the same position) — only
+      // its end state (fully reset, off-screen) matters.
+      tl.set(
         border,
-        { scaleY: 1, y: 0, duration: 0.3, ease: 'expo.inOut' },
+        { scaleY: 1, y: 0 },
         1
       )
 
