@@ -84,6 +84,11 @@ const works = [
   import { ScrollTrigger } from 'gsap/ScrollTrigger'
   gsap.registerPlugin(ScrollTrigger, SlowMo)
 
+  // How many work videos are allowed to load (fetch + decode) at once.
+  // Loading all of them fully in parallel risked losing the race for a
+  // browser's limited concurrent video decoder slots on some devices.
+  const VIDEO_LOAD_CONCURRENCY = 2
+
   class Section {
     el: HTMLElement
     container: HTMLElement
@@ -619,15 +624,35 @@ const works = [
     /**
      * Load next video
      *
-     * Loads every work video up front, in parallel, rather than
-     * one-at-a-time (waiting for each to be ready before starting the
-     * next) — so the windows have their media ready as soon as they're
-     * scrolled into view instead of still queued behind earlier ones.
+     * Loads several work videos at once (up to VIDEO_LOAD_CONCURRENCY)
+     * instead of strictly one-at-a-time, so windows have their media
+     * ready sooner — but capped, rather than starting every video's
+     * fetch/decode simultaneously, which risked losing the race for a
+     * browser's limited concurrent video decoder slots on some devices.
+     * Guards against calling .load() again on a video that's already
+     * mid-fetch (which aborts and restarts that request) by tracking an
+     * 'is-loading' class in addition to 'is-loaded'.
      */
     loadNextVideo() {
-      Array.from(this.videos)
-        .filter((video) => !video.classList.contains('is-loaded'))
+      const videos = Array.from(this.videos)
+
+      const activeCount = videos.filter(
+        (video) =>
+          video.classList.contains('is-loading') &&
+          !video.classList.contains('is-loaded')
+      ).length
+
+      const pending = videos.filter(
+        (video) =>
+          !video.classList.contains('is-loaded') &&
+          !video.classList.contains('is-loading')
+      )
+
+      pending
+        .slice(0, Math.max(0, VIDEO_LOAD_CONCURRENCY - activeCount))
         .forEach((video) => {
+          video.classList.add('is-loading')
+
           if (video.readyState >= 3) {
             this.videoLoaded(video)
           } else {
@@ -650,6 +675,7 @@ const works = [
      */
     videoLoaded(video) {
       video.classList.add('is-loaded')
+      this.loadNextVideo()
     }
 
     /**
