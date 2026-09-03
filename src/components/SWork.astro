@@ -8,7 +8,7 @@ const works = [
   { caption: 'CPS Ragusa',        site: '#', src: '/works/frame_183.mp4' },
   { caption: 'Sicilbio',          site: 'https://sicilbio.com/', src: '/works/sicilbio.png' },
   // Placeholder — media in arrivo, per ora un'immagine verde di riempimento.
-  { caption: 'Nuovo Progetto',    site: '#', src: '/works/placeholder-green.png' },
+  { caption: 'MONTEROSSO SOUND FESTIVAL', site: '#', src: '/works/placeholder-green.png' },
 ]
 ---
 
@@ -33,7 +33,7 @@ const works = [
               site={work.site}
               src={work.src}
               index={String(index).padStart(4, '0')}
-              total={String(works.length).padStart(2, '0')}
+              total="26"
             />
           ))
         }
@@ -618,28 +618,31 @@ const works = [
 
     /**
      * Load next video
+     *
+     * Loads every work video up front, in parallel, rather than
+     * one-at-a-time (waiting for each to be ready before starting the
+     * next) — so the windows have their media ready as soon as they're
+     * scrolled into view instead of still queued behind earlier ones.
      */
     loadNextVideo() {
-      const video = Array.from(this.videos).find(
-        (video) => !video.classList.contains('is-loaded')
-      )
+      Array.from(this.videos)
+        .filter((video) => !video.classList.contains('is-loaded'))
+        .forEach((video) => {
+          if (video.readyState >= 3) {
+            this.videoLoaded(video)
+          } else {
+            video.addEventListener(
+              'canplaythrough',
+              () => {
+                this.videoLoaded(video)
+              },
+              { once: true }
+            )
 
-      if (video) {
-        if (video.readyState >= 3) {
-          this.videoLoaded(video)
-        } else {
-          video.addEventListener(
-            'canplaythrough',
-            () => {
-              this.videoLoaded(video)
-            },
-            { once: true }
-          )
-
-          video.setAttribute('src', video.getAttribute('data-src'))
-          video.load()
-        }
-      }
+            video.setAttribute('src', video.getAttribute('data-src'))
+            video.load()
+          }
+        })
     }
 
     /**
@@ -647,7 +650,6 @@ const works = [
      */
     videoLoaded(video) {
       video.classList.add('is-loaded')
-      this.loadNextVideo()
     }
 
     /**
@@ -712,7 +714,7 @@ const works = [
 
     height: var(--height);
 
-    background: color(secondary);
+    background: color(primary);
     opacity: 0;
 
     .s__mask-outer {
@@ -818,10 +820,10 @@ const works = [
       width: 100%;
       height: 100lvh;
 
-      background: color(secondary);
+      background: color(primary);
       transform: translate3d(0, calc(var(--scroll-progress) * -15%), 0);
 
-      color: color(primary);
+      color: color(secondary);
 
       will-change: clip-path, transform;
 
