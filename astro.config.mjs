@@ -45,9 +45,13 @@ export default defineConfig({
 
   integrations: [
     sitemap({
-      // Placeholder page, not linked from navigation — keep it out of
-      // the sitemap so it doesn't dilute the site structure Google sees.
-      filter: (page) => !page.includes('/work-in-progress'),
+      // Keep pages marked noindex (placeholder / not-yet-ready team bios)
+      // out of the sitemap too, so it doesn't disagree with what those
+      // pages themselves tell crawlers.
+      filter: (page) =>
+        !page.includes('/work-in-progress') &&
+        !page.includes('/about/dan') &&
+        !page.includes('/about/lorenzo'),
     })
   ]
 });
