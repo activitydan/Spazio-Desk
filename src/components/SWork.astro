@@ -309,6 +309,20 @@ const works = [
     setMask() {
       const { mask } = this
 
+      // mask.el's scale is actively driven by the scroll-scrubbed
+      // timeline (from 1 up to mask.maxScale and back, as the mask
+      // opens/closes) via its transform (GSAP writes scale() into
+      // style.transform here, not the standalone CSS scale property).
+      // Measuring its on-screen geometry while resize handling happens
+      // to run mid-scale (e.g. a viewport resize triggered mid-scroll)
+      // would bake a wildly wrong offset/shape into the mask SVG paths
+      // — neutralize it for these measurements and restore it right
+      // after; the resize's later setTimeline() call rebuilds the
+      // timeline and syncs it back to the correct scale for the
+      // current scroll position anyway.
+      const previousTransform = mask.el.style.transform
+      mask.el.style.transform = 'none'
+
       const width = mask.el.clientWidth
       const height = mask.el.clientHeight
 
@@ -325,6 +339,8 @@ const works = [
       const rulerHeight = rulerBounding.height
       const offsetX = rulerBounding.left - maskBounding.left
       const offsetY = rulerBounding.top - elBounding.top
+
+      mask.el.style.transform = previousTransform
 
       // Shape
       const dOuter = `M -1 0 L ${width + 2} 0 L ${width + 2} ${height} L -1 ${height} Z`
