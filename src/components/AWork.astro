@@ -6,6 +6,7 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
 
 const isImage = !src.endsWith('.mp4')
 const isLink = site && site !== '#'
+const srcWebm = isImage ? null : src.replace(/\.mp4$/, '.webm')
 ---
 
 <a-work class={cssClass}>
@@ -15,12 +16,22 @@ const isLink = site && site !== '#'
         {isImage ? (
           <img src={src} class="a__video" alt={caption} loading="lazy" />
         ) : (
-          <video data-src={src} class="a__video js-video" loop muted playsinline width="1082" height="636"></video>
+          <video class="a__video js-video" loop muted playsinline width="1082" height="636">
+            <source data-src={srcWebm} type="video/webm" />
+            <source data-src={src} type="video/mp4" />
+          </video>
         )}
       </a>
     ) : (
       <div>
-        <video data-src={src} class="a__video js-video" loop muted playsinline width="1082" height="636"></video>
+        {isImage ? (
+          <img src={src} class="a__video" alt={caption} loading="lazy" />
+        ) : (
+          <video class="a__video js-video" loop muted playsinline width="1082" height="636">
+            <source data-src={srcWebm} type="video/webm" />
+            <source data-src={src} type="video/mp4" />
+          </video>
+        )}
       </div>
     )}
 
