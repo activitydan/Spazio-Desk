@@ -7,6 +7,8 @@ const works = [
   { caption: 'Formaggi in Festa', site: '#', src: '/works/frame_185.mp4' },
   { caption: 'CPS Ragusa',        site: '#', src: '/works/frame_183.mp4' },
   { caption: 'Sicilbio',          site: 'https://sicilbio.com/', src: '/works/sicilbio.png' },
+  // Placeholder — media in arrivo, per ora un'immagine verde di riempimento.
+  { caption: 'Nuovo Progetto',    site: '#', src: '/works/placeholder-green.png' },
 ]
 ---
 
@@ -42,12 +44,14 @@ const works = [
       <div class="s__mask js-mask">
         <div class="s__video-bg js-video-bg">
           <video
-            src="/works/visual-bg.mp4"
             autoplay
             muted
             loop
             playsinline
-          ></video>
+          >
+            <source src="/works/visual-bg.webm" type="video/webm" />
+            <source src="/works/visual-bg.mp4" type="video/mp4" />
+          </video>
         </div>
         <svg class="s__mask__svg js-mask-svg">
           <path class="s__mask__path-inner js-mask-path-inner" d=""></path>
@@ -634,7 +638,9 @@ const works = [
             { once: true }
           )
 
-          video.setAttribute('src', video.getAttribute('data-src'))
+          video.querySelectorAll('source').forEach((source) => {
+            source.setAttribute('src', source.getAttribute('data-src'))
+          })
           video.load()
         }
       }
