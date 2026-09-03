@@ -269,6 +269,13 @@ const works = [
         this.setLetters()
         this.setWorks()
         this.setTimeline()
+
+        // setTimeline() tears down and rebuilds this section's own
+        // ScrollTrigger, but other pinned/triggered sections on the page
+        // can be left with stale bounds after a width change (e.g. a
+        // DevTools panel opening/closing) unless every ScrollTrigger is
+        // recalculated together.
+        ScrollTrigger.refresh()
       }
     }
 
