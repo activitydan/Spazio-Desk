@@ -353,6 +353,15 @@ const base = import.meta.env.BASE_URL
         const borderLeft: HTMLElement = intro.querySelector('.js-border-left')
         const borderRight: HTMLElement = intro.querySelector('.js-border-right')
 
+        // .site-wrapper (the actual page content) is visible from the
+        // start — the splash is purely the fixed, full-screen .site-intro
+        // overlay animating on top of it — so there's no need to hold
+        // scrolling back for the ~5s that overlay takes to clear. Content
+        // is already laid out, so dimensions are valid immediately.
+        document.documentElement.classList.remove('is-scroll-blocked')
+        Emitter.emit('updateViewport')
+        window.lenis.resize()
+
         const tl = gsap.timeline()
 
         tl.fromTo(
@@ -382,8 +391,6 @@ const base = import.meta.env.BASE_URL
         tl.call(() => {
           mount.style.opacity = '1'
           intro.remove()
-          document.documentElement.classList.remove('is-scroll-blocked')
-          Ticker.nextTick(() => { Emitter.emit('updateViewport') })
         }, null, 5)
       }
     }
