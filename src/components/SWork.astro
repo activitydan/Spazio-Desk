@@ -726,17 +726,19 @@ const works = [
      */
     tick() {
       // Calculate scroll progress
+      // One getBoundingClientRect() read instead of two: this used to call
+      // ScrollTrigger.positionInViewport(el, 'top'|'bottom'), which each
+      // do their own rect read internally — that's a forced synchronous
+      // layout twice per frame while WORK is in view. Both reduce to the
+      // same math on a single rect (top/innerHeight, bottom/innerHeight
+      // — see ScrollTrigger's own source), so one read covers both.
+      const rect = this.el.getBoundingClientRect()
+      const topPos = rect.top / window.innerHeight
+      const bottomPos = rect.bottom / window.innerHeight
+
       this.scrollProgress =
-        Math.max(
-          Math.min(1, ScrollTrigger.positionInViewport(this.el, 'top')),
-          0
-        ) *
-          -1 +
-        (1 -
-          Math.max(
-            Math.min(1, ScrollTrigger.positionInViewport(this.el, 'bottom')),
-            0
-          ))
+        Math.max(Math.min(1, topPos), 0) * -1 +
+        (1 - Math.max(Math.min(1, bottomPos), 0))
       this.smoothScrollProgress +=
         (this.scrollProgress - this.smoothScrollProgress) * 0.1
 
@@ -793,7 +795,10 @@ const works = [
       width: 100%;
       height: 100%;
 
-      will-change: scale, transform;
+      // GSAP writes its scale() tween into style.transform here, not the
+      // standalone CSS scale property (confirmed via getComputedStyle),
+      // so only transform is actually being animated.
+      will-change: transform;
 
       &__svg {
         position: absolute;
