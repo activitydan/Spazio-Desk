@@ -2,22 +2,6 @@
 ---
 
 <div class="s-hero" data-intersect>
-  <!-- The oversized marquee scrolls out through the top of the viewport
-       with a hard, unblurred cut (Hero's own overflow:hidden only clips
-       at Hero's box edges, not the viewport edge) right as WORK's own
-       blurred entrance is happening below. Genuinely position:fixed to
-       the viewport (not confined via a containing-block trick like
-       .s__seam-blur in SWork.astro) so the browser can composite it on
-       the cheap, scroll-independent fast path — confining it via
-       clip-path/transform on an ancestor was tried first, but that
-       forces the browser to recompute its screen position against that
-       (scrolling) ancestor on every scroll frame instead, which lagged
-       a frame or two behind during fast/inertial scroll and let the
-       hard cut flash through. Hidden once Hero has fully scrolled out
-       of view via the existing is-out-of-view class (see .s-hero below)
-       so it doesn't linger as a bar over WORK afterwards. -->
-  <div class="s__top-fade" aria-hidden="true"></div>
-
   <div class="s__content js-content">
     <h1 class="u-sr-only">Spazio Desk — Studio Collettivo Creativo</h1>
 
@@ -75,21 +59,6 @@
 
     init() {
       document.addEventListener('intro', this.intro.bind(this), { once: true })
-
-      Emitter.on('scroll', this.onScroll, this)
-      this.onScroll()
-    }
-
-    /**
-     * Toggle .s__top-fade on only once Hero's own top edge has actually
-     * scrolled above the viewport (content genuinely being cut there) —
-     * not for the whole time Hero is merely somewhere in view, which
-     * left it sitting over the header as a purposeless blur at rest.
-     */
-    onScroll() {
-      const top = this.el.getBoundingClientRect().top
-
-      this.el.classList.toggle('is-crossing-top', top < 0)
     }
 
     intro() {
@@ -175,36 +144,6 @@
       @include mq(phone) {
         height: 40 * 0.5rem;
       }
-    }
-
-    .s__top-fade {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 5;
-
-      width: 100%;
-      height: 8rem;
-
-      background: linear-gradient(to bottom, color(primary), transparent);
-      filter: blur(1.5rem);
-
-      pointer-events: none;
-
-      opacity: 0;
-      transition: opacity 0.2s linear;
-
-      @include mq(phone) {
-        height: 4rem;
-      }
-    }
-
-    // Only while Hero's own top edge has scrolled above the viewport
-    // (content is actually being cut there) and Hero hasn't fully left
-    // yet — not for the entire time Hero happens to be in view, which
-    // left this sitting over the header as a purposeless blur at rest.
-    &.is-crossing-top:not(.is-out-of-view) .s__top-fade {
-      opacity: 1;
     }
 
     .s__content {
