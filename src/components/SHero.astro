@@ -5,13 +5,17 @@
   <!-- The oversized marquee scrolls out through the top of the viewport
        with a hard, unblurred cut (Hero's own overflow:hidden only clips
        at Hero's box edges, not the viewport edge) right as WORK's own
-       blurred entrance is happening below. Fixed but confined to Hero's
-       own box via the clip-path-as-containing-block trick (see .s-hero's
-       clip-path below and .s__seam-blur in SWork.astro for the same
-       technique) — position:sticky was tried first, but combining it
-       with a no-footprint negative margin broke its own stick-range
-       calculation, cutting it off early. This has no layout footprint
-       to begin with, so no such trick is needed. -->
+       blurred entrance is happening below. Genuinely position:fixed to
+       the viewport (not confined via a containing-block trick like
+       .s__seam-blur in SWork.astro) so the browser can composite it on
+       the cheap, scroll-independent fast path — confining it via
+       clip-path/transform on an ancestor was tried first, but that
+       forces the browser to recompute its screen position against that
+       (scrolling) ancestor on every scroll frame instead, which lagged
+       a frame or two behind during fast/inertial scroll and let the
+       hard cut flash through. Hidden once Hero has fully scrolled out
+       of view via the existing is-out-of-view class (see .s-hero below)
+       so it doesn't linger as a bar over WORK afterwards. -->
   <div class="s__top-fade" aria-hidden="true"></div>
 
   <div class="s__content js-content">
@@ -137,12 +141,6 @@
 
     opacity: 1;
     overflow: hidden;
-    // Visually a no-op (matches the box exactly) — its purpose is to
-    // make Hero a containing block for its position:fixed descendants
-    // (.s__top-fade), the same trick .s__outer/.s__seam-blur use in
-    // SWork.astro, so that fixed child stays confined to Hero's own
-    // box instead of pinning to the viewport for the rest of the page.
-    clip-path: inset(0);
 
     @include mq(phone) {
       min-height: calc(100svh - 4.5rem);
@@ -178,9 +176,15 @@
 
       pointer-events: none;
 
+      transition: opacity 0.2s linear;
+
       @include mq(phone) {
         height: 4rem;
       }
+    }
+
+    &.is-out-of-view .s__top-fade {
+      opacity: 0;
     }
 
     .s__content {
