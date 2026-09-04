@@ -75,6 +75,21 @@
 
     init() {
       document.addEventListener('intro', this.intro.bind(this), { once: true })
+
+      Emitter.on('scroll', this.onScroll, this)
+      this.onScroll()
+    }
+
+    /**
+     * Toggle .s__top-fade on only once Hero's own top edge has actually
+     * scrolled above the viewport (content genuinely being cut there) —
+     * not for the whole time Hero is merely somewhere in view, which
+     * left it sitting over the header as a purposeless blur at rest.
+     */
+    onScroll() {
+      const top = this.el.getBoundingClientRect().top
+
+      this.el.classList.toggle('is-crossing-top', top < 0)
     }
 
     intro() {
@@ -176,6 +191,7 @@
 
       pointer-events: none;
 
+      opacity: 0;
       transition: opacity 0.2s linear;
 
       @include mq(phone) {
@@ -183,8 +199,12 @@
       }
     }
 
-    &.is-out-of-view .s__top-fade {
-      opacity: 0;
+    // Only while Hero's own top edge has scrolled above the viewport
+    // (content is actually being cut there) and Hero hasn't fully left
+    // yet — not for the entire time Hero happens to be in view, which
+    // left this sitting over the header as a purposeless blur at rest.
+    &.is-crossing-top:not(.is-out-of-view) .s__top-fade {
+      opacity: 1;
     }
 
     .s__content {
