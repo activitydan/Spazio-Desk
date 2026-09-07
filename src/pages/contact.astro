@@ -27,13 +27,13 @@ const base = import.meta.env.BASE_URL
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Contact — Spazio Desk</title>
-    <meta name="description" content="Contatta Spazio Desk: email, telefono e Instagram." />
+    <meta name="description" content="Contatta Spazio Desk a Ragusa, Sicilia: email, telefono e Instagram." />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://spaziodesk.com/contact" />
     <meta property="og:locale" content="it_IT" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Contact — Spazio Desk" />
-    <meta property="og:description" content="Contatta Spazio Desk: email, telefono e Instagram." />
+    <meta property="og:description" content="Contatta Spazio Desk a Ragusa, Sicilia: email, telefono e Instagram." />
     <meta property="og:url" content="https://spaziodesk.com/contact" />
     <meta property="og:site_name" content="Spazio Desk" />
     <meta property="og:image" content="https://spaziodesk.com/images/og-image.png" />
@@ -45,11 +45,19 @@ const base = import.meta.env.BASE_URL
 
     <script type="application/ld+json" set:html={JSON.stringify({
       '@context': 'https://schema.org',
-      '@type': 'Organization',
+      '@type': ['Organization', 'LocalBusiness'],
       name: 'Spazio Desk',
       url: 'https://spaziodesk.com',
+      logo: 'https://spaziodesk.com/icons/android-chrome-512x512.png',
       email: 'spaziodesk@gmail.com',
       telephone: '+39 327 300 5059',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Via Ruggero Settimo, 16',
+        addressLocality: 'Ragusa',
+        addressRegion: 'RG',
+        addressCountry: 'IT',
+      },
       sameAs: ['https://instagram.com/spazio_desk'],
       contactPoint: [{
         '@type': 'ContactPoint',

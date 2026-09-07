@@ -18,6 +18,15 @@ const base = import.meta.env.BASE_URL
       <span class="u-sr-only">Spazio Desk</span>
     </a>
   </div><!-- .site-foot__logo -->
+
+  <!-- The studio's address only otherwise appears typed in by the
+       header's JS typewriter (SiteHead.astro), which starts from its
+       second message and skips it in the pre-rendered markup, and is
+       marked role="presentation" there. Real crawlable NAP text, kept
+       out of the visual design like the site's other .u-sr-only content. -->
+  <address class="u-sr-only">
+    Spazio Desk — Via Ruggero Settimo, 16, Ragusa, Sicilia, Italia
+  </address>
 </footer>
 
 <style lang="scss">
