@@ -40,9 +40,20 @@ const base = import.meta.env.BASE_URL
 
     <script type="application/ld+json" set:html={JSON.stringify({
       '@context': 'https://schema.org',
-      '@type': 'Organization',
+      '@type': ['Organization', 'LocalBusiness'],
       name: 'Spazio Desk',
       url: 'https://spaziodesk.com',
+      logo: 'https://spaziodesk.com/icons/android-chrome-512x512.png',
+      email: 'spaziodesk@gmail.com',
+      telephone: '+39 327 300 5059',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Via Ruggero Settimo, 16',
+        addressLocality: 'Ragusa',
+        addressRegion: 'RG',
+        addressCountry: 'IT',
+      },
+      sameAs: ['https://instagram.com/spazio_desk'],
       member: [
         {
           '@type': 'Person',
