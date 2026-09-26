@@ -4,6 +4,11 @@ import SiteFoot from '../components/SiteFoot.astro'
 import SiteCursor from '../components/SiteCursor.astro'
 import '../styles/global.scss'
 
+import Mail from '@lucide/astro/icons/mail'
+import Phone from '@lucide/astro/icons/phone'
+import CalendarClock from '@lucide/astro/icons/calendar-clock'
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right'
+
 const base = import.meta.env.BASE_URL
 ---
 
@@ -22,13 +27,13 @@ const base = import.meta.env.BASE_URL
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>About — Spazio Desk</title>
-    <meta name="description" content="Chi siamo: Spazio Desk è uno studio collettivo creativo con base in Sicilia. Scopri il nostro approccio a identità visiva, direzione creativa e il team dello studio." />
+    <meta name="description" content="Chi siamo e contatti: Spazio Desk è uno studio collettivo creativo con base a Ragusa, in Sicilia. Visual identity, direzione creativa, web e graphic design. Email, telefono, Instagram e call su Calendly." />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://spaziodesk.com/about" />
     <meta property="og:locale" content="it_IT" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="About — Spazio Desk" />
-    <meta property="og:description" content="Chi siamo: Spazio Desk è uno studio collettivo creativo con base in Sicilia. Scopri il nostro approccio a identità visiva, direzione creativa e il team dello studio." />
+    <meta property="og:description" content="Chi siamo e contatti: Spazio Desk è uno studio collettivo creativo con base a Ragusa, in Sicilia. Visual identity, direzione creativa, web e graphic design. Email, telefono, Instagram e call su Calendly." />
     <meta property="og:url" content="https://spaziodesk.com/about" />
     <meta property="og:site_name" content="Spazio Desk" />
     <meta property="og:image" content="https://spaziodesk.com/images/og-image.png" />
@@ -54,6 +59,13 @@ const base = import.meta.env.BASE_URL
         addressCountry: 'IT',
       },
       sameAs: ['https://instagram.com/spazio_desk'],
+      contactPoint: [{
+        '@type': 'ContactPoint',
+        contactType: 'customer service',
+        email: 'spaziodesk@gmail.com',
+        telephone: '+39 327 300 5059',
+        availableLanguage: ['Italian', 'English'],
+      }],
       member: [
         {
           '@type': 'Person',
@@ -90,7 +102,6 @@ const base = import.meta.env.BASE_URL
     <div class="site-wrapper js-site-wrapper" style="opacity: 1;">
       <SiteHead menuItems={[
         { id: 'desk', text: 'Desk', href: '/' },
-        { id: 'contact', text: 'Contact', href: '/contact' },
       ]} />
 
       <main class="s-about" data-intersect>
@@ -108,6 +119,48 @@ const base = import.meta.env.BASE_URL
             <a href={`${base}about/dan`} class="members-name members-name--link">Dan</a>
             <a href={`${base}about/lorenzo`} class="members-name members-name--link">Lorenzo Bernardini</a>
           </div>
+        </div>
+
+        <div id="contact" class="contact-section">
+          <h2 class="members-title contact-title">Contact</h2>
+          <ul class="contact-list">
+            <li>
+              <a href="https://mail.google.com/mail/?view=cm&fs=1&to=spaziodesk@gmail.com" target="_blank" rel="noreferrer" class="members-name contact-link">
+                <Mail class="contact-icon" stroke-width={2.5} aria-hidden="true" />
+                <span class="contact-text">spaziodesk@gmail.com</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://instagram.com/spazio_desk" target="_blank" rel="noreferrer" class="members-name contact-link">
+                <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                </svg>
+                <span class="contact-text">@spazio_desk</span>
+              </a>
+            </li>
+            <li>
+              <a href="tel:+393273005059" class="members-name contact-link">
+                <Phone class="contact-icon" stroke-width={2.5} aria-hidden="true" />
+                <span class="contact-text">+39 327 300 5059</span>
+              </a>
+            </li>
+          </ul>
+
+          <a
+            href="https://calendly.com/spaziodesk/30min"
+            target="_blank"
+            rel="noreferrer"
+            class="contact-calendly"
+          >
+            <CalendarClock class="contact-calendly__icon" stroke-width={2} aria-hidden="true" />
+            <span class="contact-calendly__body">
+              <span class="contact-calendly__title">Prenota una call</span>
+              <span class="contact-calendly__subtitle">30 minuti · via Calendly</span>
+            </span>
+            <ArrowUpRight class="contact-calendly__arrow" stroke-width={2} aria-hidden="true" />
+          </a>
         </div>
       </main>
 
@@ -246,12 +299,24 @@ const base = import.meta.env.BASE_URL
             return t
           })
 
-          const memberEls = [...sAbout.querySelectorAll('.members-title, .members-name')] as HTMLElement[]
+          const memberEls = [...sAbout.querySelectorAll('.members-section .members-title, .members-section .members-name')] as HTMLElement[]
           const memberTexts = memberEls.map(el => {
             const t = el.textContent ?? ''
             el.textContent = ''
             return t
           })
+
+          // Contact typing targets are the text spans only, so the icons
+          // stay in place while the text is typed next to them.
+          const contactEls = [...sAbout.querySelectorAll('.contact-title, .contact-text')] as HTMLElement[]
+          const contactTexts = contactEls.map(el => {
+            const t = el.textContent ?? ''
+            el.textContent = ''
+            return t
+          })
+          const calendly = sAbout.querySelector('.contact-calendly') as HTMLElement
+          // Hidden only once JS is running, so without it everything stays visible.
+          ;[calendly, ...sAbout.querySelectorAll('.contact-link')].forEach(el => el.classList.add('is-pending'))
 
           // Default is 1.5x the original base speed (45ms/char → 30ms/char).
           const TYPEWRITER_MS = 30
@@ -275,10 +340,40 @@ const base = import.meta.env.BASE_URL
             }
           }
 
+          function typeContact() {
+            let cIdx = 0
+            function typeNextContact() {
+              if (cIdx >= contactTexts.length) {
+                calendly.classList.add('is-visible')
+                autoScroll(calendly)
+                return
+              }
+              const text = contactTexts[cIdx]
+              const el = contactEls[cIdx]
+              el.closest('.contact-link')?.classList.add('is-visible')
+              let charIdx = 0
+              const tick = () => {
+                if (charIdx < text.length) {
+                  el.textContent += text[charIdx++]
+                  autoScroll(el)
+                  setTimeout(tick, MEMBERS_CHAR_MS)
+                } else {
+                  cIdx++
+                  setTimeout(typeNextContact, PARA_PAUSE_MS)
+                }
+              }
+              tick()
+            }
+            typeNextContact()
+          }
+
           function typeMembers() {
             let mIdx = 0
             function typeNextMember() {
-              if (mIdx >= memberTexts.length) return
+              if (mIdx >= memberTexts.length) {
+                setTimeout(typeContact, 600)
+                return
+              }
               const text = memberTexts[mIdx]
               const el = memberEls[mIdx]
               let charIdx = 0
@@ -644,6 +739,129 @@ const base = import.meta.env.BASE_URL
       text-decoration: none;
       color: inherit;
       cursor: pointer;
+    }
+
+    // ── Contact (same language as the members block above) ────────────────────
+
+    .contact-section {
+      align-self: stretch;
+      width: 100%;
+      text-align: center;
+      padding-bottom: 5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(3rem, 6vw, 5rem);
+      scroll-margin-top: 6rem;
+    }
+
+    .contact-list {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+
+      @include mq(phone) {
+        flex-direction: column;
+        gap: 2rem;
+      }
+    }
+
+    .contact-link {
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+
+      &:hover {
+        opacity: 0.6;
+      }
+    }
+
+    .contact-icon {
+      flex-shrink: 0;
+      width: 1.1em;
+      height: 1.1em;
+    }
+
+    .contact-calendly {
+      display: flex;
+      align-items: center;
+      gap: clamp(1rem, 2.5vw, 1.75rem);
+
+      width: 100%;
+      max-width: 36rem;
+      padding: clamp(1.25rem, 3vw, 2rem) clamp(1.5rem, 3vw, 2.25rem);
+
+      border: 1.5px solid color(secondary);
+      border-radius: 1rem;
+
+      color: color(secondary);
+      text-align: left;
+      text-decoration: none;
+
+      transition: background 0.3s ease, color 0.3s ease, opacity 0.5s ease;
+
+      &:hover {
+        background: color(secondary);
+        color: color(primary);
+      }
+    }
+
+    .contact-calendly__icon {
+      flex-shrink: 0;
+      width: clamp(1.5rem, 3vw, 2rem);
+      height: clamp(1.5rem, 3vw, 2rem);
+    }
+
+    .contact-calendly__body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2em;
+    }
+
+    .contact-calendly__title {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+
+    .contact-calendly__subtitle {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-weight: 500;
+      font-size: clamp(0.75rem, 1.4vw, 0.9rem);
+      opacity: 0.65;
+    }
+
+    .contact-calendly__arrow {
+      flex-shrink: 0;
+      margin-left: auto;
+      width: clamp(1.15rem, 2.2vw, 1.5rem);
+      height: clamp(1.15rem, 2.2vw, 1.5rem);
+    }
+
+    .contact-link.is-pending .contact-icon {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .contact-link.is-pending.is-visible .contact-icon {
+      opacity: 1;
+    }
+
+    .contact-calendly.is-pending {
+      opacity: 0;
+      pointer-events: none;
+
+      &.is-visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
     }
 
     .about-text {
