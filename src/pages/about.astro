@@ -97,9 +97,8 @@ const base = import.meta.env.BASE_URL
         <h1 class="u-sr-only">About — Spazio Desk</h1>
 
         <div class="about-text">
-          <p>Spazio Desk è uno studio collettivo creativo con base in Sicilia, specializzato nella creazione di identità visiva, direzione creativa e progettazione di sistemi di comunicazione. Lo studio affianca aziende, piccole e medie imprese, startup e progetti indipendenti nella costruzione di identità capaci di esprimere con chiarezza il proprio valore, traducendo strategie e visioni in sistemi coerenti, riconoscibili e duraturi.</p>
-          <p>Ogni progetto nasce da un processo che integra l'analisi e la ricerca, con l'obiettivo di sviluppare soluzioni che non rispondano soltanto a esigenze funzionali, ma che contribuiscano a costruire una cultura di marca solida e distintiva.</p>
-          <p>L'approccio di Spazio Desk affronta ogni incarico con attenzione al contesto, alle persone e agli obiettivi dell'organizzazione. Più che produrre elementi di comunicazione, lo studio progetta strumenti capaci di dare ordine alla complessità e valore alle relazioni tra brand, persone e territorio.</p>
+          <p>Spazio Desk è uno studio collettivo creativo con base a Ragusa (Sicilia) specializzato in visual identity, direzione creativa, web design e graphic design con l'obiettivo di preservare l'indipendenza artistica.</p>
+          <p>Vediamo il quotidiano e lo rendiamo funzione.</p>
         </div>
 
         <div class="members-section">
@@ -134,14 +133,6 @@ const base = import.meta.env.BASE_URL
     <div class="site-contrast-mask js-contrast-mask"></div>
 
     <SiteCursor />
-
-    <div class="speed-selector js-speed-selector" role="group" aria-label="Velocità typewriter">
-      <span class="speed-selector__label">Vel.</span>
-      <button class="speed-opt is-active" data-ms="45" aria-pressed="true">×1</button>
-      <button class="speed-opt" data-ms="15" aria-pressed="false">×2</button>
-      <button class="speed-opt" data-ms="7" aria-pressed="false">×3</button>
-    </div>
-
   </body>
 
   <script>
@@ -161,7 +152,6 @@ const base = import.meta.env.BASE_URL
         maxScrollTop: number
         scrollProgress: number
         lenis: any
-        typewriterSpeed: number
       }
     }
 
@@ -263,7 +253,8 @@ const base = import.meta.env.BASE_URL
             return t
           })
 
-          window.typewriterSpeed = 45
+          // Default is 1.5x the original base speed (45ms/char → 30ms/char).
+          const TYPEWRITER_MS = 30
           const MEMBERS_CHAR_MS = 50
           const PARA_PAUSE_MS = 400
           let paraIndex = 0
@@ -271,40 +262,6 @@ const base = import.meta.env.BASE_URL
           let userInteracted = false
           ;['wheel', 'touchstart', 'mousedown', 'keydown'].forEach(evt => {
             window.addEventListener(evt, () => { userInteracted = true }, { once: true, passive: true })
-          })
-
-          // Speed selector
-          const speedSelector = document.querySelector('.js-speed-selector') as HTMLElement
-          const speedOpts = [...document.querySelectorAll('.speed-opt')] as HTMLElement[]
-
-          gsap.fromTo(speedSelector,
-            { opacity: 0, x: 18 },
-            { opacity: 1, x: 0, duration: 0.55, ease: 'power2.out', delay: 0.4 }
-          )
-
-          function setSpeed(ms: number) {
-            window.typewriterSpeed = ms
-            speedOpts.forEach(b => {
-              const active = parseInt((b as HTMLElement).dataset.ms ?? '45', 10) === ms
-              b.classList.toggle('is-active', active)
-              b.setAttribute('aria-pressed', active ? 'true' : 'false')
-            })
-          }
-
-          speedOpts.forEach(btn => {
-            btn.addEventListener('click', () => {
-              setSpeed(parseInt((btn as HTMLElement).dataset.ms ?? '45', 10))
-            })
-          })
-
-          // click su area non interattiva → avanza di 1 step
-          const speedSteps = [45, 15, 7]
-          window.addEventListener('click', (e) => {
-            const t = e.target as HTMLElement
-            if (t.closest('button, a, .speed-selector, .site-head, .js-logo, .js-intro')) return
-            const idx = speedSteps.indexOf(window.typewriterSpeed)
-            const next = (idx === -1 ? 1 : idx + 1) % speedSteps.length
-            if (next !== idx) setSpeed(speedSteps[next])
           })
 
           function autoScroll(el: HTMLElement) {
@@ -359,7 +316,7 @@ const base = import.meta.env.BASE_URL
               if (charIdx < text.length) {
                 p.textContent += text[charIdx++]
                 autoScroll(p)
-                setTimeout(tick, window.typewriterSpeed)
+                setTimeout(tick, TYPEWRITER_MS)
               } else {
                 paraIndex++
                 setTimeout(typeNextParagraph, PARA_PAUSE_MS)
@@ -687,64 +644,6 @@ const base = import.meta.env.BASE_URL
       text-decoration: none;
       color: inherit;
       cursor: pointer;
-    }
-
-    // ── Speed selector ────────────────────────────────────────────────────────
-
-    .speed-selector {
-      position: fixed;
-      right: 2rem;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      opacity: 0;
-
-      @include mq(phone) {
-        display: none;
-      }
-    }
-
-    .speed-selector__label {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      font-size: 7px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: color(secondary);
-      margin-bottom: 0.6rem;
-    }
-
-    .speed-opt {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: color(secondary);
-      background: transparent;
-      border: none;
-      border-top: 1px solid color(secondary);
-      padding: 0.55rem 0.85rem;
-      cursor: pointer;
-      min-width: 2.8rem;
-      text-align: center;
-      transition: background 0.12s ease, color 0.12s ease;
-
-      &:last-child {
-        border-bottom: 1px solid color(secondary);
-      }
-
-      &.is-active {
-        background: color(secondary);
-        color: color(primary);
-      }
-
-      &:hover:not(.is-active) {
-        background: rgba(255, 255, 255, 0.1);
-      }
     }
 
     .about-text {
