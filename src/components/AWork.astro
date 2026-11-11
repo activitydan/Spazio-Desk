@@ -1,11 +1,29 @@
 ---
-const { caption, cssClass, index, site, src, total } = Astro.props
+const { caption, cssClass, index, site, src, total, width, height, smaller = [] } = Astro.props
 
 // A random string with the syntax '[a-z][0-9]{3}-index-total'
 const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
 
 const isImage = !src.endsWith('.mp4')
 const isLink = site && site !== '#'
+
+// With the full-size file's dimensions given, the window is sized from
+// them in the stylesheet; without, from the loaded file itself.
+const isSized = Boolean(width && height)
+const videoClass = ['a__video', 'js-video', isSized && 'is-sized']
+const videoStyle = isSized ? `--w: ${width}; --h: ${height};` : undefined
+
+// Every resolution the video exists in, smallest first, as "url width"
+// pairs: `src` is the full-size file, `smaller` lists the widths of its
+// downscaled copies (/works/name-960.mp4 next to /works/name.mp4).
+// Left empty without the dimensions: the full-size file is loaded then.
+const sources =
+  isImage || !isSized
+    ? ''
+    : [
+        ...smaller.map((w) => `${src.replace(/\.mp4$/, `-${w}.mp4`)} ${w}`),
+        `${src} ${width}`,
+      ].join(', ')
 ---
 
 <a-work class={cssClass}>
@@ -15,7 +33,7 @@ const isLink = site && site !== '#'
         {isImage ? (
           <img src={src} class="a__video" alt={caption} loading="lazy" />
         ) : (
-          <video data-src={src} class="a__video js-video" loop muted playsinline width="1082" height="711"></video>
+          <video data-src={src} data-sources={sources} style={videoStyle} class:list={videoClass} loop muted playsinline width="1082" height="711"></video>
         )}
       </a>
     ) : (
@@ -23,7 +41,7 @@ const isLink = site && site !== '#'
         {isImage ? (
           <img src={src} class="a__video" alt={caption} loading="lazy" />
         ) : (
-          <video data-src={src} class="a__video js-video" loop muted playsinline width="1082" height="711"></video>
+          <video data-src={src} data-sources={sources} style={videoStyle} class:list={videoClass} loop muted playsinline width="1082" height="711"></video>
         )}
       </div>
     )}
@@ -41,22 +59,41 @@ const isLink = site && site !== '#'
 </a-work>
 
 <script>
+  // How long a video gets to report it has loaded before the next one
+  // is allowed to start anyway.
+  const LOAD_TIMEOUT = 10000
+
+  // Video pixels wanted per screen pixel when picking which copy of a
+  // video to load: a little to spare, so it stays crisp.
+  const SHARPNESS_MARGIN = 1.2
+
+  const round = (value: number) => Math.round(value * 1e5) / 1e5
+
   class AWork extends HTMLElement {
     static observedAttributes = ['progress']
 
-    video: HTMLVideoElement
+    video: HTMLVideoElement | null = null
 
-    isPlaying: boolean
+    isPlaying = false
+
+    // Where the window is on its way across the scene: 1 is off-screen
+    // right, 0 centred, -1 off-screen left.
+    progress = 1
+    // Vertical offset from the centre, in halves of its own height
+    shift = 0
+    size = 1
+
+    loadState: 'idle' | 'loading' | 'loaded' = 'idle'
+    loadedWidth = 0
 
     /**
      * Init
      */
     connectedCallback() {
-      // Elements
       this.video = this.querySelector('.js-video')
 
-      // Properties
-      this.isPlaying = false
+      // An image has nothing to queue up for
+      if (!this.video) this.loadState = 'loaded'
     }
 
     /**
@@ -64,7 +101,8 @@ const isLink = site && site !== '#'
      */
     attributeChangedCallback(name, oldValue, newValue) {
       if (name === 'progress') {
-        this.style.setProperty('--progress', newValue)
+        this.progress = Number(newValue)
+        this.place()
 
         if (newValue === '1' || newValue === '-1') {
           if (this.isPlaying) {
@@ -79,25 +117,160 @@ const isLink = site && site !== '#'
     }
 
     /**
+     * Set the vertical offset and scale the window keeps along its path
+     */
+    setLayout(shift: number, size: number) {
+      this.shift = shift
+      this.size = size
+
+      this.place()
+    }
+
+    /**
+     * Position the window for the current progress.
+     *
+     * Written straight to `transform` rather than through custom
+     * properties feeding a calc() in the stylesheet: this runs every
+     * frame for each window in flight, and a custom property change
+     * makes the browser re-resolve the style of the window and
+     * everything inside it, where a plain transform does not.
+     */
+    place() {
+      const { progress, shift, size } = this
+
+      this.style.transform =
+        `rotateY(${round(progress * -20)}deg) ` +
+        `translate3d(calc(${round(progress * 50)}vw + ${round(progress * 100 - 50)}%), ${round(shift * 50 - 50)}%, ${round(progress * progress * -5)}rem) ` +
+        `scale(${size})`
+    }
+
+    /**
      * Gets in view
      */
     inView() {
-      if (this.video) this.video.play()
       this.isPlaying = true
 
       this.classList.add('is-inview')
+
+      // Normally preloaded by now; if this window turns up before its
+      // turn in the queue, it starts loading here and plays once it can.
+      this.load()
+      this.play()
     }
 
     /**
      * Gets out view
      */
     outView() {
-      if (this.video) this.video.pause()
       this.isPlaying = false
+
+      if (this.video) this.video.pause()
 
       this.classList.remove('is-inview')
     }
 
+    /**
+     * Play
+     */
+    play() {
+      if (!this.video) return
+
+      // Rejects when a pause() lands before playback has started (a
+      // fast scroll past the window) or when the browser refuses to
+      // autoplay: either way there is nothing to do about it.
+      const playing = this.video.play()
+      if (playing) playing.catch(() => {})
+    }
+
+    /**
+     * Start loading the video, once
+     */
+    load() {
+      const { video } = this
+
+      if (!video || this.loadState !== 'idle') return
+
+      this.loadState = 'loading'
+
+      // 'suspend' and 'stalled' count as done too: some browsers (iOS)
+      // stop at the metadata until playback starts and never get to
+      // 'canplaythrough', which would hold up every video queued behind.
+      const events = ['canplaythrough', 'suspend', 'stalled', 'error']
+      const done = () => {
+        clearTimeout(timeout)
+        events.forEach((event) => video.removeEventListener(event, done))
+
+        this.loadState = 'loaded'
+        this.dispatchEvent(new CustomEvent('loaded'))
+      }
+      const timeout = setTimeout(done, LOAD_TIMEOUT)
+      events.forEach((event) => video.addEventListener(event, done))
+
+      const source = this.pickSource()
+      this.loadedWidth = source.width
+
+      video.preload = 'auto'
+      video.src = source.src
+    }
+
+    /**
+     * After a resize: swap in a sharper copy if the window is now shown
+     * larger than the loaded one covers. Never the other way round.
+     */
+    refreshSource() {
+      const { video } = this
+
+      if (!video || this.loadState === 'idle') return
+
+      const source = this.pickSource()
+      if (source.width <= this.loadedWidth) return
+
+      this.loadedWidth = source.width
+      video.src = source.src
+
+      if (this.isPlaying) this.play()
+    }
+
+    /**
+     * Pick the smallest copy of the video that still has more pixels
+     * than the screen shows the window with. Decoding well beyond what
+     * the screen can show is what makes several windows playing at once
+     * heavy on weaker devices (and the full-size files are larger than
+     * what many phones can decode in hardware at all).
+     */
+    pickSource() {
+      const { video } = this
+
+      const sources = (video.dataset.sources || '')
+        .split(',')
+        .map((source) => {
+          const [src, width] = source.trim().split(/\s+/)
+          return { src, width: parseInt(width, 10) }
+        })
+        .filter((source) => source.src && source.width)
+        .sort((a, b) => a.width - b.width)
+
+      if (!sources.length) {
+        return { src: video.dataset.src, width: Infinity }
+      }
+
+      const connection = (navigator as any).connection
+      if (connection && connection.saveData) return sources[0]
+
+      // The video's box is sized from the viewport in the stylesheet,
+      // so its width is known before anything has loaded (the fallback
+      // is the widest it gets at any breakpoint).
+      const boxWidth =
+        parseFloat(getComputedStyle(video).width) ||
+        Math.min(1920, window.innerWidth * 0.8, window.innerHeight * 1.22)
+      const needed =
+        boxWidth * this.size * (window.devicePixelRatio || 1) * SHARPNESS_MARGIN
+
+      return (
+        sources.find((source) => source.width >= needed) ||
+        sources[sources.length - 1]
+      )
+    }
   }
 
   customElements.define('a-work', AWork)
@@ -151,6 +324,30 @@ const isLink = site && site !== '#'
       @include mq(phone) {
         max-width: 80vw;
         max-height: 80vh;
+      }
+    }
+
+    // A video is given the box its full-size file would get from the
+    // rule above (--w and --h are that file's dimensions), worked out
+    // here instead of taken from the file itself: the window is then the
+    // same size whichever copy of the video a device loads, and already
+    // before it has loaded.
+    .a__video.is-sized {
+      --fit: 50;
+
+      width: min(
+        calc(var(--w) * 1px),
+        calc(var(--fit) * 1vw),
+        calc(var(--fit) * 1vh * var(--w) / var(--h))
+      );
+      max-width: none;
+      max-height: none;
+      aspect-ratio: var(--w) / var(--h);
+
+      object-fit: cover;
+
+      @include mq(phone) {
+        --fit: 80;
       }
     }
 
