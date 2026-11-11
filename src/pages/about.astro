@@ -571,6 +571,11 @@ const base = import.meta.env.BASE_URL
       background: map.get($theme-colors, 'default', 'primary');
       mix-blend-mode: darken;
       opacity: 0;
+      // Made visible only for the theme switch's half second (SiteHead).
+      // Left in the page at opacity 0, its blend mode alone had the
+      // browser draw the whole site into an off-screen buffer first, on
+      // every frame.
+      visibility: hidden;
 
       pointer-events: none;
       will-change: opacity;

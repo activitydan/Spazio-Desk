@@ -266,14 +266,18 @@ const base = import.meta.env.BASE_URL
        */
       bindEvents() {
         window.addEventListener('resize', this.resizeThrottle.bind(this))
-        window.addEventListener('scroll', this.onScroll.bind(this), {
-          passive: true,
-        })
         window.addEventListener('mousemove', this.onMouseMove.bind(this), {
           passive: true,
         })
 
         Emitter.on('updateViewport', this.onResize, this, true)
+
+        // The page gets taller after the first measurement (WORK sets
+        // its own height once loaded): every such change ends in a
+        // ScrollTrigger refresh
+        ScrollTrigger.addEventListener('refresh', () => {
+          window.maxScrollTop = document.body.scrollHeight - window.safeHeight
+        })
 
         const observer = new IntersectionObserver(
           (entries) => {
@@ -329,13 +333,53 @@ const base = import.meta.env.BASE_URL
        * Init lenis
        */
       initLenis() {
-        const lenis = new Lenis()
+        // On touch screens Lenis leaves the scrolling itself to the
+        // browser (it only smooths the mouse wheel), yet it still
+        // listens to every touch on the window with non-passive
+        // listeners, and those make the browser wait for the page's
+        // script before it lets each swipe start scrolling. Point it at
+        // an element that never gets any events there instead.
+        const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+
+        const lenis = new Lenis(
+          isTouch ? { eventsTarget: document.createElement('div') } : {}
+        )
+
+        if (isTouch) {
+          // What its own touch listener did that still matters: a swipe
+          // cuts short a scroll animation in progress (a menu link)
+          window.addEventListener(
+            'touchmove',
+            () => {
+              if (lenis.isScrolling === 'smooth') {
+                lenis.stop()
+                lenis.start()
+              }
+            },
+            { passive: true }
+          )
+        }
 
         lenis.on('scroll', ScrollTrigger.update)
 
-        gsap.ticker.add((time) => {
-          lenis.raf(time * 1000)
+        // Every scroll goes through Lenis, the browser's own included,
+        // and it knows the offset without asking the page for it
+        lenis.on('scroll', () => {
+          this.onScroll(lenis.scroll)
         })
+
+        // Ahead of GSAP's own update in the ticker: the page is scrolled
+        // first, then every animation is rendered for that position, in
+        // the same frame. The other way round, the scroll landed on
+        // styles the animations had just changed and the browser had to
+        // resolve them there and then, and again at the end of the frame.
+        gsap.ticker.add(
+          (time) => {
+            lenis.raf(time * 1000)
+          },
+          false,
+          true
+        )
 
         gsap.ticker.lagSmoothing(0)
 
@@ -405,25 +449,36 @@ const base = import.meta.env.BASE_URL
         // transient in-between layout can still get picked up by
         // ScrollTrigger's own independent auto-refresh before things
         // settle back, leaving it out of sync with the final layout).
-        ScrollTrigger.refresh()
+        //
+        // Except on touch-only devices, unless the width changed: there
+        // a resize is nearly always the browser's address bar sliding
+        // away or back as the page scrolls, which moves nothing the
+        // triggers depend on (WORK is sized in lvh, ScrollTrigger
+        // measures the viewport at its tallest, and WORK refreshes by
+        // itself if its size does change). A refresh there only cut the
+        // scroll animation's easing short, in the middle of a swipe;
+        // ScrollTrigger itself ignores those resizes for that reason.
+        if (widthChanged || ScrollTrigger.isTouch !== 1) {
+          ScrollTrigger.refresh()
+        }
       }
 
       /**
        * Scroll handler
        */
-      onScroll() {
-        this.setScrollProgress()
+      onScroll(scrollY = window.scrollY) {
+        this.setScrollProgress(scrollY)
 
         Ticker.nextTick(() => {
-          Emitter.emit('scroll', window.scrollY)
+          Emitter.emit('scroll', scrollY)
         })
       }
 
       /**
        * Set scroll progress
        */
-      setScrollProgress() {
-        window.scrollProgress = window.scrollY / window.maxScrollTop
+      setScrollProgress(scrollY = window.scrollY) {
+        window.scrollProgress = scrollY / window.maxScrollTop
       }
 
       /**
@@ -458,6 +513,7 @@ const base = import.meta.env.BASE_URL
             // before scrolling, otherwise Lenis targets a stale position.
             Emitter.emit('updateViewport')
             window.lenis.resize()
+            ScrollTrigger.refresh()
 
             Ticker.nextTick(() => {
               window.lenis.scrollTo(window.location.hash, {
@@ -492,6 +548,7 @@ const base = import.meta.env.BASE_URL
         document.documentElement.classList.remove('is-scroll-blocked')
         Emitter.emit('updateViewport')
         window.lenis.resize()
+        ScrollTrigger.refresh()
 
         // Timeline
         const tl = gsap.timeline()
@@ -582,7 +639,7 @@ const base = import.meta.env.BASE_URL
 
     // Site init on DOM ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', site.init, { once: true })
+      document.addEventListener('DOMContentLoaded', site.init.bind(site), { once: true })
     } else {
       site.init()
     }
@@ -612,6 +669,11 @@ const base = import.meta.env.BASE_URL
       background: map.get($theme-colors, 'default', 'primary');
       mix-blend-mode: darken;
       opacity: 0;
+      // Made visible only for the theme switch's half second (SiteHead).
+      // Left in the page at opacity 0, its blend mode alone had the
+      // browser draw the whole site into an off-screen buffer first, on
+      // every frame.
+      visibility: hidden;
 
       pointer-events: none;
       will-change: opacity;

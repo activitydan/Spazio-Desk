@@ -1,13 +1,16 @@
 ---
 import AWork from './AWork.astro'
 
+// `width` and `height` are the full-size file's own dimensions (they
+// size the window); `smaller` lists the widths of its downscaled copies
+// in /public/works (name-960.mp4, ...). Each device loads the smallest
+// one that is still sharp at the size it shows the window.
 const works = [
-  { caption: "La Terrazza dell'Orologio", site: '#', src: '/works/terrazza.mp4'  },
-  { caption: 'Hyper Studio',      site: '#', src: '/works/frame_186.mp4' },
-  { caption: 'Formaggi in Festa', site: '#', src: '/works/frame_185.mp4' },
-  { caption: 'CPS Ragusa',        site: '#', src: '/works/frame_183.mp4' },
-  { caption: 'Sicilbio',          site: 'https://sicilbio.com/', src: '/works/sicilbio.png' },
-  { caption: 'MONTEROSSO SOUND FESTIVAL', site: '#', src: '/works/monterosso.mp4' },
+  { caption: "La Terrazza dell'Orologio", site: '#', src: '/works/terrazza.mp4',  width: 1280, height: 842, smaller: [960] },
+  { caption: 'Hyper Studio',      site: '#', src: '/works/frame_186.mp4', width: 1920, height: 1262, smaller: [960, 1280] },
+  { caption: 'Formaggi in Festa', site: '#', src: '/works/frame_185.mp4', width: 1920, height: 1262, smaller: [960, 1280] },
+  { caption: 'CPS Ragusa',        site: '#', src: '/works/frame_183.mp4', width: 1920, height: 1262, smaller: [960, 1280] },
+  { caption: 'MONTEROSSO SOUND FESTIVAL', site: '#', src: '/works/monterosso.mp4', width: 1920, height: 1262, smaller: [960, 1280] },
 ]
 ---
 
@@ -31,6 +34,9 @@ const works = [
               caption={work.caption}
               site={work.site}
               src={work.src}
+              width={work.width}
+              height={work.height}
+              smaller={work.smaller}
               index={String(index).padStart(4, '0')}
               total="26"
             />
@@ -43,11 +49,13 @@ const works = [
       <div class="s__mask js-mask">
         <div class="s__video-bg js-video-bg">
           <video
+            class="js-video-bg-video"
             src="/works/visual-bg.mp4"
             autoplay
             muted
             loop
             playsinline
+            preload="auto"
           ></video>
         </div>
         <svg class="s__mask__svg js-mask-svg">
@@ -88,19 +96,32 @@ const works = [
   // browser's limited concurrent video decoder slots on some devices.
   const VIDEO_LOAD_CONCURRENCY = 2
 
+  // Section height, in lvh: see setSize(). The timeline lasts
+  // 1.75 + 0.25 per window (in its own seconds) and is scrubbed over the
+  // section's height minus 75lvh, at 900/13 lvh per timeline second.
+  const SCROLL_PER_WORK_LVH = 225 / 13
+  const SCROLL_BASE_LVH = 75 + (1.75 * 900) / 13
+
+  // Size the windows are shown at, relative to their laid-out box
+  const WORK_SCALE = 0.75
+
+  const round = (value: number) => Math.round(value * 1e5) / 1e5
+  const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1)
+
   class Section {
     el: HTMLElement
     container: HTMLElement
     videoBg: HTMLElement | null
+    bgVideo: HTMLVideoElement | null
     ruler: HTMLElement
     scene: HTMLElement
     title: HTMLElement
-    videos: NodeListOf<HTMLVideoElement>
 
     mask: {
       width: number
       height: number
       maxScale: number
+      coverState: number
       el: HTMLElement
       svg: HTMLElement
       pathOuter: HTMLElement
@@ -118,12 +139,22 @@ const works = [
 
     tl: gsap.core.Timeline
     animationProgress: number
-    scrollProgress: number
-    smoothScrollProgress: number
-    state: 0
+    state: number
     speed: number
-    isPaused: boolean
-    loadIsStarted: boolean
+    spread: number
+    shift: number
+
+    // The section's place on the page, kept from the last measurement so
+    // scrolling never has to read it back from the DOM
+    top: number
+    height: number
+
+    scrollProgress: number
+    isInView: boolean
+    isCovered: boolean
+
+    lettersState: number
+    lettersProgress: number
 
     /**
      * Constructor
@@ -135,15 +166,16 @@ const works = [
       this.ruler = this.el.querySelector('.js-ruler')
       this.scene = this.container.querySelector('.js-scene')
       this.title = this.container.querySelector('.js-title')
-      this.videos = this.container.querySelectorAll('video')
 
       // Properties
       this.videoBg = this.el.querySelector('.js-video-bg')
+      this.bgVideo = this.el.querySelector('.js-video-bg-video')
 
       this.mask = {
         width: 0,
         height: 0,
         maxScale: 1,
+        coverState: Infinity,
         el: this.el.querySelector('.js-mask'),
         svg: this.el.querySelector('.js-mask-svg'),
         pathOuter: this.el.querySelector('.js-mask-path-outer'),
@@ -169,11 +201,15 @@ const works = [
         this.works.push(work)
       })
 
-      this.scrollProgress = 0
-      this.smoothScrollProgress = 0
+      this.top = 0
+      this.height = 0
 
-      this.isPaused = true
-      this.loadIsStarted = false
+      this.state = 0
+      this.animationProgress = 0
+      this.scrollProgress = 0
+
+      this.isInView = false
+      this.isCovered = false
 
       // Init
       if (document.readyState === 'complete') {
@@ -195,12 +231,22 @@ const works = [
 
       this.bindEvents()
 
+      // The windows place and load themselves, from their own script
+      // (AWork). Should it ever arrive after this one, they get their
+      // layout and start loading when it does.
+      if (!customElements.get('a-work')) {
+        customElements.whenDefined('a-work').then(() => {
+          this.setWorks()
+          this.loadNextVideo()
+        })
+      }
+
       // Start loading videos immediately regardless of scroll position
       this.loadNextVideo()
-      this.loadIsStarted = true
 
-      // If section is already in view (fast scroll / refresh mid-page), kick off tick
-      this.checkVisibility()
+      // The section may already be in view (refresh mid-page)
+      this.onScroll(window.scrollY)
+      this.updateBackground()
 
       ScrollTrigger.refresh()
     }
@@ -210,12 +256,18 @@ const works = [
      */
     bindEvents() {
       Emitter.on('resize', this.onResize, this)
+      Emitter.on('scroll', this.onScroll, this)
 
-      // Safety net: some browsers can miss the IntersectionObserver-driven
-      // 'intersect' event (e.g. if it fires before this listener is
-      // registered), permanently freezing the section's tick-driven
-      // animations. Re-verify visibility on every scroll as a fallback.
-      Emitter.on('scroll', this.checkVisibility, this)
+      // What moves the section on the page without a resize: anything
+      // ending in a ScrollTrigger refresh, and whatever changes the
+      // page's height (reported here by the browser once it has laid
+      // the page out again, so reading the position back is free)
+      ScrollTrigger.addEventListener('refresh', () => this.measure())
+
+      new ResizeObserver(() => {
+        this.measure()
+        this.onScroll(window.scrollY)
+      }).observe(document.body)
 
       document.addEventListener('intro', () => {
         this.el.style.opacity = '1'
@@ -225,37 +277,10 @@ const works = [
       this.el.addEventListener('intersect', this.onIntersect.bind(this), {
         passive: true,
       })
-    }
 
-    /**
-     * Set paused state and (de)register the tick listener accordingly
-     */
-    setPaused(isPaused) {
-      if (isPaused === this.isPaused) return
-
-      this.isPaused = isPaused
-
-      if (this.isPaused) {
-        Emitter.off('tick', this.tick, this)
-      } else {
-        Emitter.on('tick', this.tick, this)
-      }
-
-      if (!this.loadIsStarted) {
-        this.loadNextVideo()
-        this.loadIsStarted = true
-      }
-    }
-
-    /**
-     * Re-check visibility against the current scroll position, in case
-     * the IntersectionObserver's 'intersect' event was missed
-     */
-    checkVisibility() {
-      const rect = this.el.getBoundingClientRect()
-      const isIntersecting = rect.top < window.innerHeight && rect.bottom > 0
-
-      this.setPaused(!isIntersecting)
+      this.works.forEach((work) => {
+        work.el.addEventListener('loaded', () => this.loadNextVideo())
+      })
     }
 
     /**
@@ -269,27 +294,140 @@ const works = [
         this.setWorks()
         this.setTimeline()
 
+        this.works.forEach((work) => work.el.refreshSource?.())
+
         // setTimeline() tears down and rebuilds this section's own
         // ScrollTrigger, but other pinned/triggered sections on the page
         // can be left with stale bounds after a width change (e.g. a
         // DevTools panel opening/closing) unless every ScrollTrigger is
         // recalculated together.
         ScrollTrigger.refresh()
+      } else {
+        const { height } = this
+
+        this.measure()
+
+        // The section is sized in lvh, so a phone's address bar sliding
+        // away or back leaves it alone (and Site no longer refreshes
+        // ScrollTrigger for that). Whatever does resize it moves the
+        // scroll positions its animation is tied to.
+        if (this.height !== height) ScrollTrigger.refresh()
       }
+
+      this.onScroll(window.scrollY)
     }
 
     /**
      * Intersect handler
      */
     onIntersect(e) {
-      this.setPaused(!e.detail.isIntersecting)
+      // Layout is fresh at this point, so reading it back costs nothing
+      this.measure()
+
+      this.setInView(e.detail.isIntersecting)
+    }
+
+    /**
+     * Scroll handler
+     *
+     * Works from the section's measured position and the scroll offset
+     * it is handed, without reading layout: a read here, in the middle
+     * of a frame the scroll animation has already written to, would
+     * make the browser resolve every pending style change on the spot
+     * and again at the end of the frame.
+     */
+    onScroll(scrollY: number) {
+      const viewport = window.safeHeight
+      const top = this.top - scrollY
+      const bottom = top + this.height
+
+      this.setInView(top < viewport && bottom > 0)
+
+      // -1 → 0 while the section scrolls in from below, 0 while it
+      // fills the viewport, 0 → 1 while it leaves at the top
+      const scrollProgress =
+        1 - clamp01(top / viewport) - clamp01(bottom / viewport)
+
+      if (scrollProgress !== this.scrollProgress) {
+        this.scrollProgress = scrollProgress
+
+        this.shiftPanel()
+      }
+    }
+
+    /**
+     * Shift the panel with the section's way in and out of the viewport
+     * (not on phones, where the stylesheet sets the amount to 0)
+     */
+    shiftPanel() {
+      const { container, shift, scrollProgress } = this
+
+      container.style.transform = shift
+        ? `translate3d(0, ${round(scrollProgress * -shift)}%, 0)`
+        : ''
+    }
+
+    /**
+     * Measure where the section sits on the page
+     */
+    measure() {
+      const rect = this.el.getBoundingClientRect()
+
+      this.top = rect.top + window.scrollY
+      this.height = rect.height
+    }
+
+    /**
+     * Set whether any of the section is on screen
+     */
+    setInView(isInView: boolean) {
+      if (isInView === this.isInView) return
+
+      this.isInView = isInView
+
+      this.updateBackground()
+    }
+
+    /**
+     * Only draw and decode the mask's background video while it shows.
+     *
+     * Once the mask has opened far enough for its hole to cover the
+     * whole viewport (the windows' turn), the video is entirely outside
+     * the screen, yet it was still being decoded and composited through
+     * its cut-out every frame. Opacity 0 on the mask (with will-change,
+     * see the stylesheet) takes the video and its cut-out out of the
+     * compositor's work while keeping their layers ready for the way
+     * back; visibility or display would throw them away and rebuild
+     * them mid-zoom.
+     */
+    updateBackground() {
+      const { mask, bgVideo } = this
+
+      mask.el.style.opacity = this.isCovered ? '0' : ''
+
+      if (!bgVideo) return
+
+      if (this.isInView && !this.isCovered) {
+        const playing = bgVideo.play()
+        if (playing) playing.catch(() => {})
+      } else {
+        bgVideo.pause()
+      }
     }
 
     /**
      * Set size
      */
     setSize() {
-      this.el.style.setProperty('--height', this.works.length * 50 + 'lvh')
+      // A fixed share for the mask opening/closing plus the same slice
+      // of scroll for every window. With one flat amount per window
+      // (as before) the fixed opening/closing got squeezed or stretched
+      // along with the window count, so adding or removing a window
+      // changed how fast everything else scrolled by.
+      this.el.style.setProperty(
+        '--height',
+        SCROLL_BASE_LVH + this.works.length * SCROLL_PER_WORK_LVH + 'lvh'
+      )
 
       const bounding = this.container.getBoundingClientRect()
 
@@ -301,6 +439,21 @@ const works = [
       }
 
       this.speed = Math.hypot(this.bounding.width, this.bounding.height) * 4
+
+      // Set per breakpoint in the stylesheet: how far the ghost letters
+      // fan out sideways (in vw), and how far the panel shifts as the
+      // section scrolls in and out (in % of its height)
+      this.spread =
+        parseFloat(getComputedStyle(this.scene).getPropertyValue('--spread')) ||
+        50
+
+      const shift = parseFloat(
+        getComputedStyle(this.container).getPropertyValue('--shift')
+      )
+      this.shift = Number.isNaN(shift) ? 15 : shift
+
+      this.measure()
+      this.shiftPanel()
     }
 
     /**
@@ -357,6 +510,28 @@ const works = [
       const r = 36
 
       mask.maxScale = window.safeWidth / halfWidth
+
+      // The mask scales from its centre, as 1 + (maxScale - 1) * state.
+      // From this scale on, the hole's straight edges (its rounded
+      // corners left out, to stay on the safe side) are past all four
+      // edges of the mask's own box, i.e. nothing of the video is left
+      // on screen: see updateBackground().
+      const centerX = width / 2
+      const centerY = height / 2
+      const reach = [
+        [centerX, centerX - corners.tl.x - r],
+        [width - centerX, corners.tr.x - r - centerX],
+        [centerY, centerY - corners.tl.y - r],
+        [height - centerY, corners.bl.y - r - centerY],
+      ]
+      const coverScale = reach.every(([, hole]) => hole > 0)
+        ? Math.max(...reach.map(([box, hole]) => box / hole))
+        : Infinity
+
+      mask.coverState =
+        coverScale <= mask.maxScale
+          ? (coverScale - 1) / (mask.maxScale - 1)
+          : Infinity
 
       const rect = (c, rad) => `M ${c.tl.x + rad} ${c.tl.y} L ${c.tr.x - rad} ${c.tr.y} A ${rad} ${rad} 0 0 1 ${c.tr.x} ${c.tr.y + rad} L ${c.br.x} ${c.br.y - rad} A ${rad} ${rad} 0 0 1 ${c.br.x - rad} ${c.br.y} L ${c.bl.x + rad} ${c.bl.y} A ${rad} ${rad} 0 0 1 ${c.bl.x} ${c.bl.y - rad} L ${c.tl.x} ${c.tl.y + rad} A ${rad} ${rad} 0 0 1 ${c.tl.x + rad} ${c.tl.y} Z`
 
@@ -433,12 +608,9 @@ const works = [
             el,
             x: letter.left,
             y: letter.top,
-            z: Math.random() * 100,
-            i: i - letter.total * 0.5,
-            p: (i / letter.total - 0.5) * 2,
-            ap: Math.abs(i / letter.total - 0.5) * 2,
-            mx: 0,
-            my: 0,
+            // How far up or down this letter's ghosts drift as they
+            // spread: -1 (top letter) to 1 (bottom letter)
+            iy: ((j + 1) / (letters.length + 1) - 0.5) * 2,
           }
 
           el.style.top = ghost.y + 'px'
@@ -446,18 +618,12 @@ const works = [
 
           el.style.zIndex = '1'
 
-          el.style.setProperty('--ix', String(ghost.i))
-          el.style.setProperty(
-            '--iy',
-            String(((j + 1) / (letters.length + 1) - 0.5) * 2)
-          )
-
-          el.style.setProperty('--ap', String(ghost.ap))
-          el.style.setProperty('--p', String(ghost.p))
-
           letter.ghosts.push(ghost)
         }
       })
+
+      // The new ghosts start unplaced: make the next render place them
+      this.lettersState = NaN
     }
 
     /**
@@ -467,13 +633,11 @@ const works = [
       const { works } = this
 
       works.forEach((work, i) => {
-        const el = work.el
-
-        // Same size for every window (was randomized 0.5-1 before)
-        el.style.setProperty('--size', '0.75')
-        el.style.setProperty(
-          '--y',
-          String((0.5 + Math.random() * 0.5) * (i % 2 ? -1 : 1))
+        // Same size for every window (was randomized 0.5-1 before),
+        // alternately above and below the centre line
+        work.el.setLayout?.(
+          (0.5 + Math.random() * 0.5) * (i % 2 ? -1 : 1),
+          WORK_SCALE
         )
       })
     }
@@ -500,9 +664,11 @@ const works = [
           scrub: 1,
         },
         onUpdate: () => {
-          scene.style.setProperty('--state', String(this.state))
+          this.render()
         },
       })
+
+      this.tl = tl
 
       tl.fromTo(
         mask.el,
@@ -641,6 +807,24 @@ const works = [
         },
         '-=1.25'
       )
+
+      this.render()
+    }
+
+    /**
+     * Bring everything the timeline does not tween by itself in line
+     * with it: runs whenever the timeline moves, not every frame
+     */
+    render() {
+      const isCovered = this.state >= this.mask.coverState
+
+      if (isCovered !== this.isCovered) {
+        this.isCovered = isCovered
+
+        this.updateBackground()
+      }
+
+      this.moveLetters()
     }
 
     /**
@@ -651,104 +835,64 @@ const works = [
      * ready sooner — but capped, rather than starting every video's
      * fetch/decode simultaneously, which risked losing the race for a
      * browser's limited concurrent video decoder slots on some devices.
-     * Guards against calling .load() again on a video that's already
-     * mid-fetch (which aborts and restarts that request) by tracking an
-     * 'is-loading' class in addition to 'is-loaded'.
+     * Each window keeps track of its own loading (see AWork), so one
+     * that scrolls into view before its turn can start on its own
+     * without being loaded twice.
      */
     loadNextVideo() {
-      const videos = Array.from(this.videos)
+      const works = this.works.map((work) => work.el)
 
-      const activeCount = videos.filter(
-        (video) =>
-          video.classList.contains('is-loading') &&
-          !video.classList.contains('is-loaded')
-      ).length
+      const loading = works.filter((work) => work.loadState === 'loading').length
 
-      const pending = videos.filter(
-        (video) =>
-          !video.classList.contains('is-loaded') &&
-          !video.classList.contains('is-loading')
-      )
-
-      pending
-        .slice(0, Math.max(0, VIDEO_LOAD_CONCURRENCY - activeCount))
-        .forEach((video) => {
-          video.classList.add('is-loading')
-
-          if (video.readyState >= 3) {
-            this.videoLoaded(video)
-          } else {
-            video.addEventListener(
-              'canplaythrough',
-              () => {
-                this.videoLoaded(video)
-              },
-              { once: true }
-            )
-
-            video.setAttribute('src', video.getAttribute('data-src'))
-            video.load()
-          }
-        })
-    }
-
-    /**
-     * Video loaded
-     */
-    videoLoaded(video) {
-      video.classList.add('is-loaded')
-      this.loadNextVideo()
+      works
+        .filter((work) => work.loadState === 'idle')
+        .slice(0, Math.max(0, VIDEO_LOAD_CONCURRENCY - loading))
+        .forEach((work) => work.load())
     }
 
     /**
      * Move letters
+     *
+     * Each ghost's transform is worked out here and written straight to
+     * it. It used to come out of custom properties (the spread on the
+     * scene, the position on each ghost) feeding a calc() in the
+     * stylesheet: every change to the scene's one made the browser
+     * re-resolve the styles of every ghost and window inside it, on
+     * every frame of the animation, which is what weaker devices could
+     * not keep up with.
      */
     moveLetters() {
-      const { speed, letters, animationProgress } = this
+      const { speed, spread, letters, animationProgress, state } = this
 
-      letters.forEach((letter, i) => {
+      if (state === this.lettersState && animationProgress === this.lettersProgress) {
+        return
+      }
+
+      // Closed and already placed: every ghost sits on its letter,
+      // wherever it is along its loop
+      const isAtRest = state === 0 && this.lettersState === 0
+
+      this.lettersState = state
+      this.lettersProgress = animationProgress
+
+      if (isAtRest) return
+
+      letters.forEach((letter) => {
         const letterSpeed = speed * letter.freq
-        letter.ghosts.forEach((ghost, index) => {
-          let progress =
-            (((animationProgress % letterSpeed) / letterSpeed +
-              index / letter.total) %
-              1) /
-              0.7 -
-            0.15
+        const loop = (animationProgress % letterSpeed) / letterSpeed
 
-          ghost.el.style.setProperty('--progress', String(progress))
+        letter.ghosts.forEach((ghost, index) => {
+          const progress = ((loop + index / letter.total) % 1) / 0.7 - 0.15
+
+          // 1 → -1 from one side of the scene to the other
+          const head = (progress - 0.5) * -2
+          const offset = head * state
+
+          ghost.el.style.transform =
+            `rotateY(${round(offset * -10)}deg) ` +
+            `translate3d(${round(offset * spread)}vw, ${round(ghost.iy * 50 * head * offset)}%, 0)`
         })
       })
-    }
-
-    /**
-     * Tick
-     */
-    tick() {
-      // Calculate scroll progress
-      // One getBoundingClientRect() read instead of two: this used to call
-      // ScrollTrigger.positionInViewport(el, 'top'|'bottom'), which each
-      // do their own rect read internally — that's a forced synchronous
-      // layout twice per frame while WORK is in view. Both reduce to the
-      // same math on a single rect (top/innerHeight, bottom/innerHeight
-      // — see ScrollTrigger's own source), so one read covers both.
-      const rect = this.el.getBoundingClientRect()
-      const topPos = rect.top / window.innerHeight
-      const bottomPos = rect.bottom / window.innerHeight
-
-      this.scrollProgress =
-        Math.max(Math.min(1, topPos), 0) * -1 +
-        (1 - Math.max(Math.min(1, bottomPos), 0))
-      this.smoothScrollProgress +=
-        (this.scrollProgress - this.smoothScrollProgress) * 0.1
-
-      this.el.style.setProperty(
-        '--scroll-progress',
-        String(this.scrollProgress)
-      )
-
-      // Movement
-      this.moveLetters()
     }
   }
 
@@ -798,7 +942,13 @@ const works = [
       // GSAP writes its scale() tween into style.transform here, not the
       // standalone CSS scale property (confirmed via getComputedStyle),
       // so only transform is actually being animated.
-      will-change: transform;
+      //
+      // Opacity: set to 0 from the script while the mask is open all
+      // the way and nothing of it is on screen (updateBackground). The
+      // hint keeps its layers (the video and its cut-out) alive
+      // meanwhile instead of having them torn down and rebuilt each
+      // time the mask closes again.
+      will-change: transform, opacity;
 
       &__svg {
         position: absolute;
@@ -820,10 +970,6 @@ const works = [
         fill: none;
         fill-rule: evenodd;
         stroke: none;
-
-        transform: translate3d(0, calc(var(--scroll-progress) * 48px), 0);
-
-        will-change: transform;
       }
 
     }
@@ -873,15 +1019,18 @@ const works = [
       width: 100%;
       height: 100lvh;
 
+      // How far it shifts while the section scrolls in and out, in % of
+      // its height (applied by the script, see shiftPanel)
+      --shift: 15;
+
       background: color(primary);
-      transform: translate3d(0, calc(var(--scroll-progress) * -15%), 0);
 
       color: color(secondary);
 
       will-change: clip-path, transform;
 
       @include mq(phone) {
-        transform: none;
+        --shift: 0;
       }
     }
 
@@ -962,8 +1111,9 @@ const works = [
 
     .s__scene {
       --shadow: #{color(shadow)};
-      --progress: 0.5;
-      --state: 0;
+      // How far the ghost letters fan out to each side, in vw (read by
+      // the script, which positions them)
+      --spread: 50;
 
       position: absolute;
       top: 0;
@@ -977,30 +1127,20 @@ const works = [
 
       will-change: transform;
 
-      :global(.s__scene__letter) {
-        --head: calc((var(--progress) - 0.5) * -2);
-        --ahead: calc(var(--head) * var(--head));
-        --spread: 50vw;
+      @include mq(phone) {
+        --spread: 75;
+      }
 
+      :global(.s__scene__letter) {
         position: absolute;
         top: 0;
         left: 0;
 
         display: block;
 
-        transform: rotateY(calc(var(--head) * -10deg * var(--state)))
-          translate3d(
-            calc(var(--head) * var(--spread) * var(--state)),
-            calc(var(--iy) * 50% * var(--ahead) * var(--state)),
-            0
-          );
-
+        // Its transform comes from the script (moveLetters)
         pointer-events: none;
         will-change: transform;
-
-        @include mq(phone) {
-          --spread: 75vw;
-        }
 
         &:before {
           display: none;
@@ -1013,35 +1153,11 @@ const works = [
         left: 50%;
         z-index: 2;
 
-        transform: rotateY(calc(var(--progress) * -20deg))
-          translate3d(
-            calc(var(--progress) * (50vw + 100%) - 50%),
-            calc(var(--y) * 50% - 50%),
-            calc(var(--progress) * var(--progress) * -5rem)
-          )
-          scale(var(--size));
+        // Parked off-screen to the right until the script places it
+        // along its path (AWork's place())
+        transform: translate3d(calc(50vw + 50%), -50%, 0);
 
         will-change: transform;
-
-        @include mq(tablet) {
-          transform: rotateY(calc(var(--progress) * -20deg))
-            translate3d(
-              calc(var(--progress) * (50vw + 100%) - 50%),
-              calc(var(--y) * 50% - 50%),
-              calc(var(--progress) * var(--progress) * -5rem)
-            )
-            scale(var(--size));
-        }
-
-        @include mq(phone) {
-          transform: rotateY(calc(var(--progress) * -20deg))
-            translate3d(
-              calc(var(--progress) * (50vw + 100%) - 50%),
-              calc(var(--y) * 50% - 50%),
-              calc(var(--progress) * var(--progress) * -5rem)
-            )
-            scale(var(--size));
-        }
       }
     }
   }

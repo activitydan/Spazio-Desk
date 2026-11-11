@@ -19,6 +19,9 @@
 
     isDragging: boolean
 
+    pageHeight: number
+    height: string
+
     /**
      * Contructor
      */
@@ -26,6 +29,8 @@
       // elements
       this.el = document.querySelector('.site-scrollbar')
       this.thumb = this.el.querySelector('.js-thumb')
+
+      this.pageHeight = document.body.scrollHeight
 
       // Properties
       this.drag = {
@@ -54,6 +59,20 @@
       Emitter.on('siteLoaded', this.setScrollbar, this, true)
       Emitter.on('updateViewport', this.setScrollbar, this, true)
 
+      // The page's height, which sizes the thumb, changes rarely (a
+      // section sizing itself, a resize) and the browser reports it
+      // here when it does. It used to be read back from the document on
+      // every scroll, and each time the browser had to stop and resolve
+      // the styles of the animations it was in the middle of rendering.
+      new ResizeObserver(() => {
+        this.pageHeight = document.body.scrollHeight
+
+        if (window.safeHeight) this.setScrollbar()
+      }).observe(document.body)
+
+      this.onDragMove = this.onDragMove.bind(this)
+      this.onDragEnd = this.onDragEnd.bind(this)
+
       // Drag start event
       thumb.addEventListener('mousedown', this.onDragStart.bind(this), {
         passive: false,
@@ -61,35 +80,45 @@
       thumb.addEventListener('touchstart', this.onDragStart.bind(this), {
         passive: false,
       })
+    }
 
-      // Drag move event
-      document.addEventListener('mousemove', this.onDragMove.bind(this), {
-        passive: false,
-      })
-      document.addEventListener('touchmove', this.onDragMove.bind(this), {
-        passive: false,
-      })
+    /**
+     * Listen for the drag's moves and its end, for as long as it lasts.
+     *
+     * These used to sit on the document at all times. A non-passive
+     * touchmove listener there makes the browser check with the page's
+     * script before every swipe is allowed to scroll, whether or not a
+     * drag is going on.
+     */
+    toggleDragEvents(isDragging: boolean) {
+      const toggle = isDragging ? 'addEventListener' : 'removeEventListener'
 
-      // Drag end event
-      document.addEventListener('mouseup', this.onDragEnd.bind(this), {
-        passive: false,
-      })
-      document.addEventListener('touchend', this.onDragEnd.bind(this), {
-        passive: false,
-      })
+      document[toggle]('mousemove', this.onDragMove, { passive: false })
+      document[toggle]('touchmove', this.onDragMove, { passive: false })
+      document[toggle]('mouseup', this.onDragEnd, { passive: false })
+      document[toggle]('touchend', this.onDragEnd, { passive: false })
     }
 
     /**
      * Set scrollbar
      */
     setScrollbar() {
+      const { thumb } = this
+
       const scrollbarHeight =
-        (window.safeHeight / document.body.scrollHeight) * window.safeHeight
+        (window.safeHeight / this.pageHeight) * window.safeHeight
       const scrollbarTop =
         window.scrollProgress * (window.safeHeight - scrollbarHeight)
 
-      this.el.style.setProperty('--scrollbar-height', `${scrollbarHeight}px`)
-      this.el.style.setProperty('--scrollbar-top', `${scrollbarTop}px`)
+      // Set on the thumb, the one element that uses them: on the bar
+      // around it, every change was handed down to all of its parts
+      const height = `${scrollbarHeight}px`
+      if (height !== this.height) {
+        this.height = height
+        thumb.style.setProperty('--scrollbar-height', height)
+      }
+
+      thumb.style.setProperty('--scrollbar-top', `${scrollbarTop}px`)
     }
 
     /**
@@ -99,6 +128,7 @@
       let { el, drag } = this
 
       this.isDragging = true
+      this.toggleDragEvents(true)
 
       drag.start.y = e instanceof MouseEvent ? e.clientY : e.touches[0].clientY
       drag.start.scroll = window.scrollProgress
@@ -137,6 +167,8 @@
       const { el } = this
 
       this.isDragging = false
+      this.toggleDragEvents(false)
+
       el.classList.remove('is-dragging')
 
       e.preventDefault()

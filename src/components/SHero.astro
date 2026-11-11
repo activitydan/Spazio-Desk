@@ -238,6 +238,16 @@
       }
     }
 
+    // Held still while the hero is scrolled out of sight: left running,
+    // the browser kept working on it for the whole time spent in the
+    // sections below. It carries on from the same point on the way back.
+    &.is-out-of-view {
+      .s__marquee__track,
+      .s__marquee-mobile__track {
+        animation-play-state: paused;
+      }
+    }
+
     @keyframes s-hero-marquee {
       from { transform: translateX(0); }
       to   { transform: translateX(-25%); }

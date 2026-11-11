@@ -23,14 +23,18 @@ class Ticker {
    * Tick
    */
   tick(time, delta) {
-    const self = this
-
     this.delta = delta
 
-    this.callbacks.forEach((object, index) => {
-      object.callback.apply(object.context)
+    // Start a fresh list for the callbacks queued from here on (they
+    // run next tick, as before). The list used to be kept forever with
+    // each spent entry deleted in place, so it grew by one hole per
+    // scroll event and every tick had to step over all of them: the
+    // longer the page had been scrolled, the slower each frame got.
+    const callbacks = this.callbacks
+    this.callbacks = []
 
-      delete self.callbacks[index]
+    callbacks.forEach((object) => {
+      object.callback.apply(object.context)
     })
 
     Emitter.emit('tick', time * 1000)
